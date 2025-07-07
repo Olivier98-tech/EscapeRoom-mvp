@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Level 3: Hexa Lockdown</title>
+  <style>
+    body {
+      background: linear-gradient(#000000, #1f1f1f);
+      color: #00ff88;
+      font-family: monospace;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      color: #ffa500;
+      margin-bottom: 0.5rem;
+    }
+    .hex-code {
+      background: #111;
+      border: 2px dashed #00ff88;
+      display: inline-block;
+      padding: 1rem;
+      margin-top: 2rem;
+      font-size: 1.2rem;
+    }
+    input[type="text"] {
+      margin-top: 2rem;
+      padding: 0.5rem;
+      width: 300px;
+      background: #000;
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      font-family: monospace;
+      font-size: 1rem;
+    }
+    .result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .button {
+      margin-top: 1.5rem;
+      padding: 0.5rem 1.5rem;
+      font-size: 1rem;
+      background: #ff3c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background: #e60000;
+    }
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 0, 0.05),
+        rgba(0, 255, 0, 0.05) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      animation: flicker 0.15s infinite;
+    }
+    @keyframes flicker {
+      0% { opacity: 0.1; }
+      50% { opacity: 0.2; }
+      100% { opacity: 0.1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+  <h1>Level 3: Hexa Lockdown</h1>
+  <p>De AI heeft een cruciaal commando versleuteld met hexadecimale code.</p>
+  <p>Ontcijfer de code en voer het correcte antwoord in.</p>
+
+  <div class="hex-code">
+    0x53 0x41 0x56 0x45 0x5F 0x54 0x48 0x45 0x5F 0x57 0x4F 0x52 0x4C 0x44
+  </div>
+
+  <br>
+  <input type="text" id="userInput" placeholder="" />
+  <br>
+  <button class="button" onclick="checkAnswer()">Controleer</button>
+
+  <div class="result" id="result"></div>
+
+  <audio id="correctSound" src="correct.mp3"></audio>
+  <audio id="errorSound" src="error.mp3"></audio>
+
+  <script>
+    let lockedUntil = 0;
+    function updateCountdown() {
+      const remaining = lockedUntil - Date.now();
+      const minutes = Math.floor(remaining / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000).toString().padStart(2, '0');
+      const el = document.getElementById("countdown");
+      if (el) {
+        el.textContent = `⏳ Wachten: ${minutes}:${seconds}`;
+      }
+    }
+    
+    function checkAnswer() {
+      const now = Date.now();
+      if (now < lockedUntil) return;
+      const input = document.getElementById("userInput").value.trim().toUpperCase();
+      const result = document.getElementById("result");
+      if (input === "SAVE_THE_WORLD") {
+        document.getElementById("correctSound").play();
+        result.innerHTML = "✅ Correct! Je hebt de code gekraakt.";
+        setTimeout(() => {
+          window.location.href = "../naar-level4.html";
+        }, 3000);
+      } else {
+        document.getElementById("errorSound").play();
+        lockedUntil = Date.now() + 5 * 60 * 1000;
+        updateCountdown();
+        result.innerHTML = "⛔ Geblokkeerd voor 5 minuten wegens foutieve invoer.<br><span id='countdown'></span>";
+        const interval = setInterval(() => {
+          if (Date.now() >= lockedUntil) {
+            clearInterval(interval);
+            result.innerHTML = "";
+          } else {
+            updateCountdown();
+          }
+        }, 1000);
+      }
+    }
+  </script>
+</body>
+</html>

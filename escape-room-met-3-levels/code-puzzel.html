@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Level 1: Code Ontsleutelen</title>
+  <style>
+    body {
+      background-color: #0b0c10;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #ff3c3c;
+    }
+    img {
+      width: 100%;
+      max-width: 400px;
+      margin: 2rem auto;
+      display: block;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1.2rem;
+      width: 120px;
+      text-align: center;
+    }
+    button {
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      margin-left: 1rem;
+      background: #ffa500;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #000;
+    }
+    #feedback {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Level 1: De Cijfercode</h1>
+    <p>De AI heeft haar toegangscode versleuteld in deze QR-transmissie. Kun jij de 4-cijferige code kraken?</p>
+    <img src="qr-puzzel-duidelijker.png" alt="QR Puzzel Afbeelding" />
+    <div>
+      <input type="text" id="codeInput" maxlength="4" placeholder="****" />
+      <button onclick="checkCode()">Bevestigen</button>
+    </div>
+    <p id="feedback"></p>
+  </div>
+
+  <audio id="correctSound" src="correct.mp3"></audio>
+  <audio id="errorSound" src="error.mp3"></audio>
+
+  <script>
+    let attempts = 0;
+    function checkCode() {
+      const input = document.getElementById("codeInput").value;
+      const feedback = document.getElementById("feedback");
+      const correct = document.getElementById("correctSound");
+      const error = document.getElementById("errorSound");
+
+      if (input === "9284") {
+        feedback.textContent = "✅ Code correct. De deur opent zich...";
+        correct.play();
+        setTimeout(() => {
+          window.location.href = "naar-firewall.html";
+        }, 4000);
+      } else {
+        attempts++;
+        feedback.textContent = `❌ Fout! Poging ${attempts}. Analyseer opnieuw...`;
+        error.play();
+      }
+    }
+  </script>
+</body>
+</html>

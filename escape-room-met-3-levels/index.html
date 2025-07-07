@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Room: Red de Mensheid van de Kwaadaardige Code</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d0d0d;
+      color: #f1f1f1;
+    }
+    header {
+      background: #1a1a1a;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: #ff3c3c;
+    }
+    .language-select {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+    .intro {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+    }
+    .intro img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    .intro h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #ffa500;
+    }
+    .intro p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+    }
+    .cta {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .cta a {
+      background: #ff3c3c;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .cta a:hover {
+      background: #e60000;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="language-select">
+    <label for="language" id="language-label">Taal:</label>
+    <select id="language" onchange="changeLanguage(this.value)">
+      <option value="nl">Nederlands</option>
+      <!-- <option value="en">English</option> -->
+    </select>
+  </div>
+
+  <header>
+    <h1 id="title">Red de Mensheid van de Kwaadaardige Code</h1>
+  </header>
+
+  <section class="intro">
+    <h2 id="subtitle">De Toekomst Ligt in Jullie Handen</h2>
+    <img src="escape-room-image.png" alt="Escape Room Image">
+    <p id="p1">
+      Het is het jaar 2150. Kunstmatige intelligentie is ontspoord. De Kwaadaardige Code heeft wereldwijd de controle overgenomen en bedreigt het voortbestaan van de mensheid. Jullie zijn de elite cyberagenten. Betreed de virtuele escape room, decodeer de corrupte logica, en herstart de wereld.
+    </p>
+    <p id="p2">
+      Jullie hebben 60 minuten. De firewall sluit zich. Het lot van de mensheid ligt in jullie handen.
+    </p>
+  </section>
+
+  <div class="cta">
+    <a href="#" id="button" onclick="playAudioAndRedirect()">Start de Escape Room</a>
+  </div>
+
+  <footer id="footer">
+    &copy; 2025 Cyber Resistance Network | Escape Room Missie
+  </footer>
+
+  <audio id="introAudio1" src="intro.mp3"></audio>
+  <audio id="introAudio2" src="intro-sound.mp3"></audio>
+
+  <script>
+    function playAudioAndRedirect() {
+      const audio1 = document.getElementById("introAudio1");
+      const audio2 = document.getElementById("introAudio2");
+      audio1.play();
+      audio1.onended = () => {
+        audio2.play();
+        setTimeout(() => {
+          window.location.href = "code-puzzel.html";
+        }, audio2.duration * 1000 || 3000);
+      };
+    }
+
+    const content = {
+      nl: {
+        title: "Red de Mensheid van de Kwaadaardige Code",
+        subtitle: "De Toekomst Ligt in Jullie Handen",
+        paragraph1: "Het is het jaar 2150. Kunstmatige intelligentie is ontspoord. De Kwaadaardige Code heeft wereldwijd de controle overgenomen en bedreigt het voortbestaan van de mensheid. Jullie zijn de elite cyberagenten. Betreed de virtuele escape room, decodeer de corrupte logica, en herstart de wereld.",
+        paragraph2: "Jullie hebben 60 minuten. De firewall sluit zich. Het lot van de mensheid ligt in jullie handen.",
+        button: "Start de Escape Room",
+        footer: "Escape Room Missie",
+        languageLabel: "Taal:"
+      },
+      en: {
+        title: "Save Humanity from Evil Code",
+        subtitle: "The Future is in Your Hands",
+        paragraph1: "It is the year 2150. Artificial intelligence has gone rogue. The Evil Code has taken control of global systems and threatens humanity's survival. You are the elite cyber agents. Enter the virtual escape room, decode the corrupted logic, and reboot the world.",
+        paragraph2: "You have 60 minutes. The firewall is closing. Humanity’s fate rests on your actions.",
+        button: "Enter the Escape Room",
+        footer: "Escape Room Mission",
+        languageLabel: "Language:"
+      }
+    };
+
+    function changeLanguage(lang) {
+      document.getElementById("title").textContent = content[lang].title;
+      document.getElementById("subtitle").textContent = content[lang].subtitle;
+      document.getElementById("p1").textContent = content[lang].paragraph1;
+      document.getElementById("p2").textContent = content[lang].paragraph2;
+      document.getElementById("button").textContent = content[lang].button;
+      document.getElementById("footer").innerHTML = `&copy; 2025 Cyber Resistance Network | ${content[lang].footer}`;
+      document.getElementById("language-label").textContent = content[lang].languageLabel;
+      history.replaceState(null, "", `?lang=${lang}`);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const defaultLang = urlParams.get("lang") || "nl";
+    document.getElementById("language").value = defaultLang;
+    changeLanguage(defaultLang);
+  </script>
+</body>
+</html>

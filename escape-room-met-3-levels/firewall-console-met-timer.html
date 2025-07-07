@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Level 2: Firewall Console</title>
+  <style>
+    body {
+      background-color: #0e0e0e;
+      color: #00ff88;
+      font-family: monospace;
+      padding: 2rem;
+    }
+    .console {
+      background-color: #111;
+      border: 2px solid #00ff88;
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+      color: #ffaa00;
+    }
+    .puzzle {
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      background: #000;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      font-family: monospace;
+      font-size: 1rem;
+    }
+    .locked {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .success {
+      color: #00ff88;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Level 2: De Firewall</h1>
+  <div class="console">
+    <p><strong>root@mainframe:/firewall$</strong> 🔐 Puzzle vereist toegangscode</p>
+
+    <div class="puzzle">
+      <p>🧠 De AI heeft zijn code verborgen in deze string:</p>
+      <pre>Uifsf jt b tfdsfu dpef: WFODPEF</pre>
+      <p id="hint" style="display:none;">➡️ Hint: Het is een eenvoudige versleuteling (Shift -1)</p>
+    </div>
+
+    <input type="text" id="codeInput" placeholder="Typ hier het commando en druk op Enter..." onkeydown="checkEnter(event)" />
+    <div id="message"></div>
+  </div>
+
+  <audio id="correctSound" src="correct.mp3"></audio>
+  <audio id="errorSound" src="error.mp3"></audio>
+
+  <script>
+    const correctCommand = "unlock_firewall --code=ENCODE";
+    let lockedUntil = 0;
+let errorCount = 0;
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        const now = Date.now();
+        if (now < lockedUntil) {
+          document.getElementById("message").innerHTML = "<div class='locked'>⛔ Toegang geblokkeerd. Wacht 5 minuten...</div>";
+          return;
+        }
+
+        const val = document.getElementById("codeInput").value.trim();
+        if (val === correctCommand) {
+          document.getElementById("message").innerHTML = "<div class='success'>✅ Firewall gedeactiveerd! Goed gedaan, kadet.</div>";
+          document.getElementById("correctSound").play();
+          setTimeout(() => {
+            window.location.href = "naar-level3.html";
+          }, 4000);
+        } else {
+          document.getElementById("message").innerHTML = "<div class='locked'>⛔ Fout commando. Je moet nu 5 minuten wachten.<br>⏳ Wachten: <span id='countdown'></span></div>";
+          document.getElementById("errorSound").play();
+          lockedUntil = now + (5 * 60 * 1000);
+        errorCount++;
+        if (errorCount >= 3) {
+          document.getElementById("hint").style.display = "block";
+        } // 5 minutes
+        updateCountdown();
+        const countdownInterval = setInterval(() => {
+          updateCountdown();
+          if (Date.now() >= lockedUntil) {
+            clearInterval(countdownInterval);
+            document.getElementById("message").innerHTML = "";
+          }
+        }, 1000);
+        }
+      }
+    }
+  
+    function updateCountdown() {
+      const now = Date.now();
+      const remaining = lockedUntil - now;
+      if (remaining > 0) {
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000).toString().padStart(2, '0');
+        document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
+      }
+    }
+</script>
+
+</body>
+</html>
