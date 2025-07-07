@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Level 4: Code van de Vier</title>
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #00ff88;
+      font-family: monospace;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #ffaa00;
+    }
+
+    .lock-panel {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem auto;
+    }
+
+    select {
+      font-size: 2rem;
+      padding: 0.5rem;
+      background: #111;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      border-radius: 5px;
+    }
+
+    .button {
+      background: #ff3c3c;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1.5rem;
+    }
+
+    .button:hover {
+      background: #e60000;
+    }
+
+    .status {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      min-height: 2rem;
+    }
+
+    body.alarm {
+      animation: alarmFlash 1s infinite;
+    }
+
+    @keyframes alarmFlash {
+      0% { background-color: #0a0a0a; }
+      50% { background-color: #300000; }
+      100% { background-color: #0a0a0a; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Level 4: Code van de Vier</h1>
+  <p>Selecteer de juiste 4 symbolen om de AI-controlekamer te ontgrendelen.</p>
+  <p><strong>Let op:</strong> Slechts 6 pogingen. Na 3 fouten volgt een pauze van 2 minuten.</p>
+
+  <div class="lock-panel">
+    <select id="slot1">
+      <option value="1">⚫</option>
+      <option value="2">⚪</option>
+      <option value="3">◉</option>
+      <option value="4">◎</option>
+      <option value="5">▲</option>
+      <option value="6">◆</option>
+    </select>
+    <select id="slot2">
+      <option value="1">⚫</option>
+      <option value="2">⚪</option>
+      <option value="3">◉</option>
+      <option value="4">◎</option>
+      <option value="5">▲</option>
+      <option value="6">◆</option>
+    </select>
+    <select id="slot3">
+      <option value="1">⚫</option>
+      <option value="2">⚪</option>
+      <option value="3">◉</option>
+      <option value="4">◎</option>
+      <option value="5">▲</option>
+      <option value="6">◆</option>
+    </select>
+    <select id="slot4">
+      <option value="1">⚫</option>
+      <option value="2">⚪</option>
+      <option value="3">◉</option>
+      <option value="4">◎</option>
+      <option value="5">▲</option>
+      <option value="6">◆</option>
+    </select>
+  </div>
+
+  <button class="button" onclick="checkCode()">Controleer</button>
+  <div class="status" id="status"></div>
+
+  <!-- AUDIO -->
+  <audio id="startAudio" src="startLevel4.mp3" preload="auto"></audio>
+  <audio id="followupAudio" src="level4Sound.mp3" preload="auto"></audio>
+  <audio id="alarmAudio" src="Emergency-Alarm.mp3" preload="auto" loop></audio>
+  <audio id="correctSound" src="correct.mp3" preload="auto"></audio>
+  <audio id="errorSound" src="error.mp3" preload="auto"></audio>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.body.classList.add("alarm");
+
+      const start = document.getElementById("startAudio");
+      const next = document.getElementById("followupAudio");
+      const alarm = document.getElementById("alarmAudio");
+
+      // Speel direct audio (klik niet nodig bij sommige browsers)
+      start.play().then(() => {
+        start.onended = () => {
+          next.play();
+          next.onended = () => {
+            alarm.volume = 0.8;
+            alarm.play();
+          };
+        };
+      }).catch(() => {
+        console.warn("Audio kan niet automatisch afgespeeld worden.");
+      });
+    });
+
+    const correctCombination = ['3', '2', '5', '1']; // Pas dit aan indien nodig
+    let attempts = 0;
+    let cooldown = false;
+
+    function checkCode() {
+      if (cooldown) return;
+
+      const selected = [
+        document.getElementById("slot1").value,
+        document.getElementById("slot2").value,
+        document.getElementById("slot3").value,
+        document.getElementById("slot4").value
+      ];
+
+      const status = document.getElementById("status");
+
+      if (selected.join() === correctCombination.join()) {
+        document.getElementById("correctSound").play();
+        status.textContent = "✅ Correct! Je gaat door naar het volgende level...";
+        setTimeout(() => {
+          window.location.href = "naar-level5.html";
+        }, 2000);
+      } else {
+        document.getElementById("errorSound").play();
+        attempts++;
+        const remaining = 6 - attempts;
+
+        if (attempts >= 6 || attempts % 3 === 0) {
+          status.textContent = "❌ 3 foute pogingen. Wacht 2 minuten...";
+          startCooldown(120);
+        } else {
+          status.textContent = `❌ Combinatie fout. Nog ${remaining} poging(en).`;
+        }
+      }
+    }
+
+    function startCooldown(seconds) {
+      cooldown = true;
+      const btn = document.querySelector(".button");
+      btn.disabled = true;
+
+      const interval = setInterval(() => {
+        document.getElementById("status").textContent = `⏳ Wachten: ${seconds}s`;
+        seconds--;
+        if (seconds < 0) {
+          clearInterval(interval);
+          btn.disabled = false;
+          cooldown = false;
+          document.getElementById("status").textContent = "🔁 Probeer opnieuw.";
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

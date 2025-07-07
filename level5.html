@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Level 5: Kernel Infiltratie</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      overflow: hidden;
+      color: #33ff33;
+      font-family: monospace;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      color: #ffaa00;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(8, 2rem);
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+
+    .matrix div {
+      border: 1px solid #33ffcc;
+      padding: 0.5rem;
+      background-color: #111;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .status {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      min-height: 1.5rem;
+    }
+
+    .button {
+      background: #ff3c3c;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      font-size: 1rem;
+      border-radius: 5px;
+      margin-top: 2rem;
+      cursor: pointer;
+    }
+
+    #timer {
+      font-size: 1.5rem;
+      color: #ffaa00;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="content">
+  <h1>Level 5: Infiltreer de AI Kernel</h1>
+  <p>Klik op de juiste getallen in de matrix om de verborgen code te vinden.</p>
+  <div class="matrix" id="matrixGrid"></div>
+  <button class="button" onclick="submitSelection()">Bevestig Code</button>
+  <div id="timer"></div>
+  <div class="status" id="status"></div>
+
+  <audio id="correct" src="correct.mp3"></audio>
+  <audio id="error" src="error.mp3"></audio>
+</div>
+
+<script>
+  // MATRIX ANIMATIE
+  const canvas = document.getElementById("matrix");
+  const ctx = canvas.getContext("2d");
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+
+  const letters = "アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const fontSize = 14;
+  const columns = canvas.width / fontSize;
+  const drops = Array.from({ length: columns }, () => 1);
+
+  function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#0F0";
+    ctx.font = fontSize + "px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = letters.charAt(Math.floor(Math.random() * letters.length));
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+  setInterval(drawMatrix, 33);
+
+  // PUZZEL LOGICA
+  const codePattern = [3, 10, 27, 36];
+  const selected = new Set();
+  let locked = false;
+  let cooldownSeconds = 60;
+
+  function generateMatrix() {
+    const grid = document.getElementById("matrixGrid");
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement("div");
+      cell.textContent = i.toString().padStart(2, "0");
+      cell.dataset.index = i;
+      cell.onclick = () => toggle(cell);
+      grid.appendChild(cell);
+    }
+  }
+
+  function toggle(cell) {
+    const idx = parseInt(cell.dataset.index);
+    if (locked) return;
+    if (selected.has(idx)) {
+      selected.delete(idx);
+      cell.style.backgroundColor = "#111";
+    } else {
+      selected.add(idx);
+      cell.style.backgroundColor = "#006666";
+    }
+  }
+
+  function submitSelection() {
+    if (locked) return;
+    const status = document.getElementById("status");
+    const arr = [...selected].sort((a, b) => a - b);
+    if (JSON.stringify(arr) === JSON.stringify(codePattern)) {
+      document.getElementById("correct").play();
+      status.textContent = "✅ Code correct. Kernel geïnfiltreerd...";
+      setTimeout(() => {
+        window.location.href = "naar-level6.html";
+      }, 3000);
+    } else {
+      document.getElementById("error").play();
+      status.textContent = "❌ Foutieve selectie. Je moet 60 seconden wachten...";
+      startCooldown();
+    }
+  }
+
+  function startCooldown() {
+    locked = true;
+    const timer = document.getElementById("timer");
+    let seconds = cooldownSeconds;
+    timer.textContent = `⏳ Wachttijd: ${seconds}s`;
+    const interval = setInterval(() => {
+      seconds--;
+      timer.textContent = `⏳ Wachttijd: ${seconds}s`;
+      if (seconds <= 0) {
+        clearInterval(interval);
+        timer.textContent = "";
+        locked = false;
+      }
+    }, 1000);
+  }
+
+  generateMatrix();
+</script>
+</body>
+</html>

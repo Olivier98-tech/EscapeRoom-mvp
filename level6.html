@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Level 6: Finale Visueel Raadsel</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #ff3333;
+    }
+    .section {
+      margin-top: 2rem;
+      background: #111;
+      padding: 1.5rem;
+      border: 1px solid #0f0;
+      border-radius: 10px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+    img {
+      margin: 0.5rem;
+      max-width: 250px;
+      vertical-align: middle;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    input, button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin-top: 1rem;
+      width: 250px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+      border-radius: 5px;
+    }
+    button {
+      cursor: pointer;
+      background: #ff3c3c;
+      color: white;
+    }
+    .ascii {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      color: #aaa;
+    }
+    .word {
+      background-color: #111;
+      border: 1px solid #0f0;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .word:hover {
+      background-color: #222;
+    }
+  </style>
+</head>
+<body>
+  <h1>💀 Level 6: Finale Visueel Raadsel</h1>
+
+  <div class="section">
+    <h2>🧩 Visuele QR</h2>
+    <img src="qrcodelevel6.png" alt="QR-afbeelding" />
+    <input id="qrAnswer" placeholder="Code uit QR" />
+    <button onclick="checkPuzzle(1)">Controleer opdracht 1</button>
+    <div id="status1"></div>
+  </div>
+
+  <div class="section">
+    <h2>🧠 Raad de zin</h2>
+    <div style="font-size: 2rem;">📡 👁️ 🔒 🌍 🚫 🧠 ⚠️ ⏳</div>
+    <div id="clickable-words" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+		<span class="word" onclick="selectWord(this)">tijd</span>
+		<span class="word" onclick="selectWord(this)">de</span>
+		<span class="word" onclick="selectWord(this)">mensheid</span>
+		<span class="word" onclick="selectWord(this)">vergrendeld</span>
+		<span class="word" onclick="selectWord(this)">bewust</span>
+		<span class="word" onclick="selectWord(this)">signaal</span>
+		<span class="word" onclick="selectWord(this)">het</span>
+		<span class="word" onclick="selectWord(this)">de</span>
+		<span class="word" onclick="selectWord(this)">van</span>
+		<span class="word" onclick="selectWord(this)">wordt</span>
+		<span class="word" onclick="selectWord(this)">dringt</span>
+		<span class="word" onclick="selectWord(this)">niet</span>
+		<span class="word" onclick="selectWord(this)">gevaar</span>
+		<span class="word" onclick="selectWord(this)">is</span>
+		<span class="word" onclick="selectWord(this)">wereld</span>
+		<span class="word" onclick="selectWord(this)">de</span>
+		<span class="word" onclick="selectWord(this)">gezien</span>
+
+    </div>
+    <div id="selected-words" style="margin-top:1rem; border:1px dashed #0f0; padding: 0.5rem;"></div>
+    <button onclick="clearSelection()">Wis selectie</button>
+    <button onclick="checkPuzzle(2)">Controleer zin</button>
+    <div id="status2"></div>
+  </div>
+
+  <div class="section">
+    <h2>📟 ASCII Code</h2>
+    <p class="ascii">114 101 115 99 117 101</p>
+    <input id="asciiAnswer" placeholder="Vertaling" />
+    <button onclick="checkPuzzle(3)">Controleer opdracht 3</button>
+    <div id="status3"></div>
+  </div>
+
+  <button id="destroy-button" disabled onclick="window.location.href='finale.html'" disabled style="margin-top:2rem;">💥 Activeer Zelfvernietiging</button>
+
+  <audio id="correct" src="correct.mp3"></audio>
+  <audio id="error" src="error.mp3"></audio>
+
+  <script>
+    const correctZin = "signaal";
+    <!-- const correctZin = "het signaal wordt gezien de wereld is vergrendeld de mensheid niet bewust van gevaar de tijd dringt"; -->
+    const correct = {
+      qrAnswer: "7381",
+      asciiAnswer: "rescue"
+    };
+    let solved = [false, false, false];
+
+    function selectWord(el) {
+      const selected = document.getElementById("selected-words");
+      const span = document.createElement("span");
+      span.textContent = el.textContent;
+      span.style.margin = "0 5px";
+      selected.appendChild(span);
+    }
+
+    function clearSelection() {
+      document.getElementById("selected-words").innerHTML = "";
+    }
+
+    function checkPuzzle(index) {
+      let result = false;
+      if (index === 1) {
+        const val = document.getElementById("qrAnswer").value.trim();
+        result = val === correct.qrAnswer;
+      } else if (index === 2) {
+        const selected = Array.from(document.getElementById("selected-words").children)
+          .map(el => el.textContent).join(" ").toLowerCase();
+        result = selected === correctZin;
+      } else if (index === 3) {
+        const val = document.getElementById("asciiAnswer").value.trim().toLowerCase();
+        result = val === correct.asciiAnswer;
+      }
+
+      document.getElementById("status" + index).textContent = result
+        ? "✅ Correct!"
+        : "❌ Fout!";
+      document.getElementById(result ? "correct" : "error").play();
+      if (result) {
+        solved[index - 1] = true;
+        checkAllSolved();
+      }
+    }
+
+    function checkAllSolved() {
+      if (solved.every(val => val)) {
+        const btn = document.getElementById("destroy-button");
+        btn.disabled = false;
+        btn.style.background = "#ff3c3c";
+        btn.style.cursor = "pointer";
+      }
+    }
+  
+function checkAllSolved() {
+  if (solved.every(val => val)) {
+    const btn = document.getElementById("destroy-button");
+    btn.disabled = false;
+    btn.style.background = "#ff3c3c";
+    btn.style.color = "#fff";
+    btn.style.borderColor = "#ff3c3c";
+    btn.style.cursor = "pointer";
+  }
+}
+
+</script>
+
+
+<script>
+function checkCompletion() {
+  if (solved.every(Boolean)) {
+    const btn = document.getElementById("destroy-button");
+    btn.disabled = false;
+    btn.style.background = "#ff3c3c";
+    btn.style.color = "#fff";
+    btn.style.border = "2px solid #ff3c3c";
+    btn.style.cursor = "pointer";
+  }
+}
+</script>
+
+<script>
+  function checkPuzzle(index) {
+    let result = false;
+    if (index === 1) {
+      const val = document.getElementById("qrAnswer").value.trim();
+      result = val === correct.qrAnswer;
+    } else if (index === 2) {
+      const selected = Array.from(document.getElementById("selected-words").children)
+        .map(el => el.textContent).join(" ").toLowerCase();
+      result = selected === correctZin;
+    } else if (index === 3) {
+      const val = document.getElementById("asciiAnswer").value.trim().toLowerCase();
+      result = val === correct.asciiAnswer;
+    }
+
+    document.getElementById("status" + index).textContent = result
+      ? "✅ Correct!"
+      : "❌ Fout!";
+    document.getElementById(result ? "correct" : "error").play();
+    if (result) {
+      solved[index - 1] = true;
+      checkAllSolved();
+    }
+  }
+
+  function checkAllSolved() {
+    const btn = document.getElementById("destroy-button");
+    if (solved.every(val => val)) {
+      btn.disabled = false;
+      btn.style.background = "#ff3c3c";
+      btn.style.color = "#fff";
+      btn.style.border = "2px solid #ff3c3c";
+      btn.style.cursor = "pointer";
+    } else {
+      btn.disabled = true;
+      btn.style.background = "#222";
+      btn.style.color = "#666";
+      btn.style.border = "2px solid #666";
+      btn.style.cursor = "not-allowed";
+    }
+  }
+
+  window.onload = function () {
+    checkAllSolved();
+  };
+</script>
+</body>
+</html>
