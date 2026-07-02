@@ -17,7 +17,8 @@ en [`docs/PREPARATION-CHECKLIST.md`](docs/PREPARATION-CHECKLIST.md) (klaarzetten
 ## 📁 Structuur
 
 ```
-├── index.html              # Intro + start van de missie (start de timer)
+├── index.html              # Home / roomselectie (kies room, hervat lopende missie)
+├── briefing.html           # Missie-briefing: verhaal + groepsnaam + start (start de timer)
 ├── admin.html              # Spelleider portaal (PIN-beveiligd)
 ├── dashboard.html          # Missiecontrole (hub: voortgang, tijden, levelkeuze)
 ├── finale.html             # Overwinningsscherm

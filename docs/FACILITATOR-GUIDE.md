@@ -97,3 +97,10 @@ heeft een „▸ Hervat missie"-knop; nog niet bereikte missies staan geredactee
 (met slot). Voltooide missies zijn alleen-lezen — ze tonen de tijd maar openen
 niet opnieuw. Overgeslagen levels (via het admin portaal) tonen „vrijgegeven
 door spelleider" in plaats van een tijd.
+
+## ▶ Startflow
+
+`index.html` is de **home**: hier kies je de escape room (nu één) en zie je een
+„Hervat"-strook als er al een missie loopt. „Speel" opent de **briefing**
+(`briefing.html`) met het verhaal, de groepsnaam en de startknop — pas dáár
+begint de klok. Zo staat op elk scherm maar één ding centraal.

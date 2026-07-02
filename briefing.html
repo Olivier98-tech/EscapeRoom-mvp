@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Briefing — Red de Mensheid van de Kwaadaardige Code</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="er-page er-hero">
+    <p style="text-align:left;margin:0 0 0.5rem"><a href="index.html" style="color:var(--muted);text-decoration:none;font-size:0.85rem">‹ Terug naar home</a></p>
+
+    <h1>RED DE MENSHEID VAN DE KWAADAARDIGE CODE</h1>
+    <h2>De toekomst ligt in jullie handen</h2>
+
+    <img class="er-img" src="assets/images/intro.png" alt="Cyberagenten voor een gloeiende terminal" style="max-width:min(100%,560px)" />
+
+    <div class="er-panel">
+      <p>
+        Het is het jaar 2150. Kunstmatige intelligentie is ontspoord. De Kwaadaardige
+        Code heeft wereldwijd de controle overgenomen en bedreigt het voortbestaan van
+        de mensheid. Jullie zijn de elite cyberagenten. Betreed de virtuele escape room,
+        decodeer de corrupte logica, en herstart de wereld.
+      </p>
+      <p>
+        <strong style="color:var(--amber)">⏱ De firewall sluit zich. Zodra jullie starten, begint de klok te lopen.</strong>
+      </p>
+    </div>
+
+    <div style="margin:1rem 0">
+      <label for="group-input" style="display:block;color:var(--muted);font-size:0.9rem;margin-bottom:0.35rem">Groepsnaam (optioneel — handig voor de spelleider)</label>
+      <input type="text" id="group-input" maxlength="40" placeholder="bv. Team Alpha" autocomplete="off" style="text-align:center;width:min(100%,320px)" />
+    </div>
+
+    <button class="er-btn er-btn-primary" id="start-btn" type="button">▶ Start de missie</button>
+    <p id="start-status" class="er-feedback"></p>
+    <p id="running-note" style="color:var(--muted);font-size:0.85rem;display:none"></p>
+
+    <footer style="margin-top:3rem;color:var(--muted);font-size:0.85rem">
+      &copy; 2026 Cyber Resistance Network · <a href="admin.html" style="color:var(--muted)">spelleider</a>
+    </footer>
+  </main>
+
+  <audio id="introVoice" src="assets/audio/intro-voice.mp3" preload="auto"></audio>
+  <audio id="introAmbience" src="assets/audio/intro-ambience.mp3" preload="auto"></audio>
+
+  <script src="js/game.js"></script>
+  <script>
+    (function () {
+      const btn = document.getElementById("start-btn");
+      const status = document.getElementById("start-status");
+      const voice = document.getElementById("introVoice");
+      const ambience = document.getElementById("introAmbience");
+
+      document.getElementById("group-input").value = ER.getGroupName();
+
+      function go() { window.location.href = "levels/level1.html"; }
+
+      function begin() {
+        ER.setGroupName(document.getElementById("group-input").value);
+        ER.startGame();
+        btn.disabled = true;
+        status.className = "er-feedback er-success";
+        status.textContent = "▸ Verbinding met mainframe... briefing wordt afgespeeld.";
+
+        if (!ER.soundOn()) { go(); return; }
+        const failsafe = setTimeout(go, 45000);
+        voice.play().then(() => {
+          voice.onended = () => {
+            ambience.play().catch(() => {});
+            const wait = isFinite(ambience.duration) ? ambience.duration * 1000 : 3000;
+            setTimeout(() => { clearTimeout(failsafe); go(); }, Math.min(wait, 15000));
+          };
+        }).catch(() => { clearTimeout(failsafe); go(); });
+      }
+
+      btn.addEventListener("click", () => {
+        if (ER.isStarted() &&
+            !confirm("Er loopt al een missie op dit toestel. Opnieuw starten wist de voortgang en de tijd. Doorgaan?")) {
+          return;
+        }
+        begin();
+      });
+
+      // If a mission is already running, make that clear (resume lives on the home page).
+      if (ER.isStarted()) {
+        const p = ER.getProgress();
+        const next = Math.min(p.length + 1, ER.TOTAL_LEVELS);
+        const note = document.getElementById("running-note");
+        note.style.display = "block";
+        note.innerHTML = '⏳ Er loopt al een missie. <a href="levels/level' + next +
+          '.html">Hervat bij level ' + next + " ▸</a> — of start hieronder opnieuw (reset).";
+        btn.textContent = "▶ Opnieuw starten (reset)";
+      }
+    })();
+  </script>
+</body>
+</html>

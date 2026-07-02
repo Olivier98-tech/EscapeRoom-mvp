@@ -3,85 +3,87 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Escape Room: Red de Mensheid van de Kwaadaardige Code</title>
+  <title>Escape Terminal — Cyber Resistance Network</title>
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .home-brand{color:var(--muted);letter-spacing:0.22em;font-size:0.75rem;}
+    .home h1{color:var(--terminal);}
+    .home .tag{color:var(--muted);margin:0 0 1.8rem;}
+    .resume{display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:rgba(255,170,0,0.07);
+      border:1px solid var(--amber);border-radius:8px;padding:0.7rem 1rem;margin:0 auto 1.8rem;max-width:640px;font-size:0.9rem;text-align:left;}
+    .resume .lbl{color:var(--amber);}
+    .resume .sp{margin-left:auto;}
+    .resume a{color:var(--amber);text-decoration:none;font-weight:600;}
+    .resume a+a{margin-left:1rem;}
+    .sec{color:var(--muted);letter-spacing:0.14em;font-size:0.72rem;text-transform:uppercase;margin:0 0 0.8rem;text-align:left;}
+    .rooms{display:grid;grid-template-columns:1fr;gap:1rem;}
+    .room{display:flex;gap:1.1rem;background:var(--panel);border:1px solid var(--terminal-dim);border-radius:12px;padding:1.1rem;align-items:center;text-align:left;}
+    .thumb{width:96px;height:96px;flex:0 0 96px;border-radius:8px;border:1px solid var(--terminal-dim);object-fit:cover;}
+    .room .body{flex:1;min-width:0;}
+    .room h3{margin:0.1rem 0 0.3rem;color:var(--ink);font-size:1.1rem;}
+    .room .desc{color:var(--muted);font-size:0.85rem;margin:0 0 0.6rem;}
+    .badges{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.7rem;}
+    .badge{font-size:0.68rem;letter-spacing:0.05em;color:var(--terminal);border:1px solid var(--terminal-dim);border-radius:4px;padding:0.15rem 0.5rem;}
+    .room.soon{border-style:dashed;border-color:#1c2622;background:#0a0d0e;}
+    .room.soon .thumb{background:#0e1413;border-style:dashed;}
+    .room.soon h3{color:#2c3a34;letter-spacing:0.18em;}
+    .room.soon .desc{color:#33413b;}
+    .foot{margin-top:2.2rem;color:var(--muted);font-size:0.85rem;}
+    .foot a{color:var(--muted);text-decoration:none;}
+    .foot a:hover{color:var(--terminal);}
+  </style>
 </head>
 <body>
-  <main class="er-page er-hero">
-    <h1>RED DE MENSHEID VAN DE KWAADAARDIGE CODE</h1>
-    <h2>De toekomst ligt in jullie handen</h2>
+  <main class="er-page home">
+    <p class="home-brand">CYBER RESISTANCE NETWORK</p>
+    <h1>◈ Escape Terminal</h1>
+    <p class="tag">Kies een missie om te starten.</p>
 
-    <img class="er-img" src="assets/images/intro.png" alt="Cyberagenten voor een gloeiende terminal" style="max-width:min(100%,560px)" />
+    <div id="resume"></div>
 
-    <div class="er-panel">
-      <p>
-        Het is het jaar 2150. Kunstmatige intelligentie is ontspoord. De Kwaadaardige
-        Code heeft wereldwijd de controle overgenomen en bedreigt het voortbestaan van
-        de mensheid. Jullie zijn de elite cyberagenten. Betreed de virtuele escape room,
-        decodeer de corrupte logica, en herstart de wereld.
-      </p>
-      <p>
-        <strong style="color:var(--amber)">⏱ De firewall sluit zich. Zodra jullie starten, begint de klok te lopen.</strong>
-      </p>
-    </div>
+    <p class="sec">Beschikbare escape rooms</p>
+    <div class="rooms" id="rooms"></div>
 
-    <div style="margin:1rem 0">
-      <label for="group-input" style="display:block;color:var(--muted);font-size:0.9rem;margin-bottom:0.35rem">Groepsnaam (optioneel — handig voor de spelleider)</label>
-      <input type="text" id="group-input" maxlength="40" placeholder="bv. Team Alpha" autocomplete="off" style="text-align:center;width:min(100%,320px)" />
-    </div>
-    <button class="er-btn er-btn-primary" id="start-btn" type="button">▶ Start de missie</button>
-    <p id="start-status" class="er-feedback"></p>
-
-    <footer style="margin-top:3rem;color:var(--muted);font-size:0.85rem">
-      &copy; 2026 Cyber Resistance Network · <a href="admin.html" style="color:var(--muted)">spelleider</a>
-    </footer>
+    <div class="foot">🎛 <a href="admin.html">Spelleider portaal</a></div>
   </main>
-
-  <audio id="introVoice" src="assets/audio/intro-voice.mp3" preload="auto"></audio>
-  <audio id="introAmbience" src="assets/audio/intro-ambience.mp3" preload="auto"></audio>
 
   <script src="js/game.js"></script>
   <script>
     (function () {
-      const btn = document.getElementById("start-btn");
-      const status = document.getElementById("start-status");
-      const voice = document.getElementById("introVoice");
-      const ambience = document.getElementById("introAmbience");
-      document.getElementById("group-input").value = ER.getGroupName();
+      const ROOMS = [
+        {
+          name: "Red de Mensheid van de Kwaadaardige Code",
+          desc: "Het jaar 2150. Kraak zes codes en herstart de wereld voor de firewall sluit.",
+          img: "assets/images/intro.png",
+          badges: ["6 missies", "± 45–60 min", "2–6 spelers", "NL"],
+          href: "briefing.html"
+        },
+        { soon: true, name: "████████████", desc: "Nieuwe escape room — binnenkort beschikbaar." }
+      ];
 
-      function go() { window.location.href = "levels/level1.html"; }
-
-      btn.addEventListener("click", () => {
-        ER.setGroupName(document.getElementById("group-input").value);
-        ER.startGame();
-        btn.disabled = true;
-        status.className = "er-feedback er-success";
-        status.textContent = "▸ Verbinding met mainframe... briefing wordt afgespeeld.";
-
-        if (!ER.soundOn()) { go(); return; }
-
-        // Play briefing, then ambience, then enter level 1.
-        // Safety net: if audio fails or takes too long, continue anyway.
-        const failsafe = setTimeout(go, 45000);
-        voice.play().then(() => {
-          voice.onended = () => {
-            ambience.play().catch(() => {});
-            const wait = isFinite(ambience.duration) ? ambience.duration * 1000 : 3000;
-            setTimeout(() => { clearTimeout(failsafe); go(); }, Math.min(wait, 15000));
-          };
-        }).catch(() => { clearTimeout(failsafe); go(); });
-      });
-
-      // Returning players who already started: offer to resume.
       if (ER.isStarted()) {
         const p = ER.getProgress();
         const next = Math.min(p.length + 1, ER.TOTAL_LEVELS);
-        const resume = document.createElement("p");
-        resume.innerHTML = '⏳ Er loopt al een missie. <a href="levels/level' + next +
-          '.html">Ga verder bij level ' + next + ' ▸</a> · <a href="dashboard.html">◈ Missiecontrole</a>';
-        btn.insertAdjacentElement("afterend", resume);
-        btn.textContent = "▶ Opnieuw starten (reset)";
+        const grp = ER.getGroupName();
+        document.getElementById("resume").innerHTML =
+          '<div class="resume"><span class="lbl">⏳ Lopende missie</span>' +
+          (grp ? '<span>— ' + grp.replace(/[<>&]/g, "") + ", level " + next + "</span>" : '<span>— level ' + next + "</span>") +
+          '<span class="sp"></span>' +
+          '<a href="levels/level' + next + '.html">Hervat ▸</a>' +
+          '<a href="dashboard.html">◈ Missiecontrole</a></div>';
       }
+
+      document.getElementById("rooms").innerHTML = ROOMS.map(r => {
+        if (r.soon) {
+          return '<div class="room soon"><div class="thumb"></div><div class="body">' +
+            "<h3>" + r.name + "</h3><p class=\"desc\">" + r.desc + "</p>" +
+            '<div class="badges"><span class="badge" style="color:#2c3a34;border-color:#1c2622">Binnenkort</span></div></div></div>';
+        }
+        return '<div class="room"><img class="thumb" src="' + r.img + '" alt="" />' +
+          '<div class="body"><h3>' + r.name + "</h3><p class=\"desc\">" + r.desc + "</p>" +
+          '<div class="badges">' + r.badges.map(b => '<span class="badge">' + b + "</span>").join("") + "</div>" +
+          '<a class="er-btn er-btn-primary" href="' + r.href + '">▶ Speel</a></div></div>';
+      }).join("");
     })();
   </script>
 </body>
