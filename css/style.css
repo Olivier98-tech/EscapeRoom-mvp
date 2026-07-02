@@ -179,6 +179,8 @@ input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible
 .er-locked  { color: var(--alert); }
 .er-error   { color: var(--alert); }
 .er-hud-group { color: var(--amber); }
+.er-hud-link { color: var(--muted); text-decoration: none; }
+.er-hud-link:hover { color: var(--terminal); }
 .er-intro-eyebrow { color: var(--amber); letter-spacing: 0.15em; font-size: 0.8rem; margin: 0 0 0.5rem; }
 
 .er-hint {

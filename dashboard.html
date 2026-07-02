@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Missiecontrole 2150</title>
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .mc-top{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap;border-bottom:1px solid var(--terminal-dim);padding:0.6rem 0 0.9rem;font-size:0.85rem;letter-spacing:0.06em;}
+  .mc-top .brand{color:var(--muted);}
+  .mc-top .group{color:var(--amber);}
+  .mc-top .timer{margin-left:auto;color:var(--terminal);font-size:1.15rem;font-variant-numeric:tabular-nums;text-align:right;}
+  .mc-top .timer small{color:var(--muted);font-size:0.65rem;display:block;letter-spacing:0.12em;}
+  .mc-head{text-align:left;}
+  .mc-head h1{margin:1.4rem 0 0.2rem;}
+  .mc-head p{color:var(--muted);margin:0 0 1.3rem;}
+  .mc-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.7rem;margin-bottom:1.4rem;}
+  .mc-stat{background:var(--panel);border:1px solid var(--terminal-dim);border-radius:8px;padding:0.8rem 0.9rem;text-align:left;}
+  .mc-stat .k{color:var(--muted);font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;}
+  .mc-stat .v{color:var(--terminal);font-size:1.4rem;font-variant-numeric:tabular-nums;margin-top:0.2rem;}
+  .mc-bar{height:6px;background:#0a1512;border:1px solid var(--terminal-dim);border-radius:6px;overflow:hidden;margin-bottom:1.8rem;}
+  .mc-bar span{display:block;height:100%;background:var(--terminal);transition:width 0.4s;}
+  .mc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.9rem;}
+  .mc-card{background:var(--panel);border:1px solid var(--terminal-dim);border-radius:10px;padding:1rem 1.1rem;position:relative;overflow:hidden;text-align:left;}
+  .mc-card .num{position:absolute;top:0.5rem;right:0.8rem;font-size:2.2rem;color:#182420;font-weight:700;}
+  .mc-card .st{font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:0.45rem;}
+  .mc-card h3{margin:0.1rem 0 0.5rem;font-size:1.1rem;letter-spacing:0.03em;color:var(--ink);}
+  .mc-card .meta{font-size:0.8rem;color:var(--muted);}
+  .mc-card .meta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+  .mc-card .go{display:inline-block;margin-top:0.8rem;font-size:0.85rem;font-weight:600;padding:0.45rem 1rem;border-radius:6px;background:var(--amber);color:#221800;text-decoration:none;}
+  .mc-done{border-color:var(--terminal);}
+  .mc-done .st,.mc-done h3{color:var(--terminal);}
+  .mc-done .num{color:#0e3326;}
+  .mc-active{border-color:var(--amber);box-shadow:0 0 22px rgba(255,170,0,0.14);}
+  .mc-active .st,.mc-active h3{color:var(--amber);}
+  .mc-active .num{color:#3a2c05;}
+  .mc-pulse{width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block;vertical-align:middle;margin-right:0.3rem;animation:mc-bl 1.1s step-end infinite;}
+  @keyframes mc-bl{50%{opacity:0.25;}}
+  .mc-locked{border-style:dashed;border-color:#1c2622;background:#0a0d0e;}
+  .mc-locked .st{color:var(--muted);}
+  .mc-locked h3{color:#2c3a34;letter-spacing:0.22em;}
+  .mc-locked .meta{color:#33413b;}
+  .mc-locked .num{color:#141c19;}
+  .mc-lock{position:absolute;top:0.9rem;right:1rem;font-size:1.3rem;color:#2c3a34;}
+  .mc-back{margin-top:1.6rem;text-align:left;}
+  .mc-back a{color:var(--terminal);text-decoration:none;font-size:0.85rem;}
+  .mc-notice{background:var(--panel);border:1px solid var(--terminal-dim);border-radius:10px;padding:2rem;text-align:center;margin-top:2rem;}
+</style>
+</head>
+<body>
+  <main class="er-page">
+    <div id="app"></div>
+  </main>
+
+  <script src="js/game.js"></script>
+  <script>
+    (function () {
+      const app = document.getElementById("app");
+      const N = ER.TOTAL_LEVELS;
+
+      function fmtSec(sec) { return ER.fmt(sec * 1000); }
+      function levelEntry(n) {
+        try { return JSON.parse(localStorage.getItem("er_lentry_" + n)); } catch { return null; }
+      }
+      const REDACTED = ["████████", "█████████", "███████", "████████", "██████████", "██████"];
+
+      if (!ER.isStarted()) {
+        app.innerHTML =
+          '<div class="mc-notice"><h1 style="margin-top:0">▸ Missiecontrole</h1>' +
+          "<p>Er is nog geen missie gestart op dit toestel.</p>" +
+          '<p><a class="er-btn er-btn-primary" href="index.html">▶ Naar de intro</a></p></div>';
+        return;
+      }
+
+      // Determine the active (first unsolved) level.
+      let active = null;
+      for (let i = 1; i <= N; i++) { if (!ER.isComplete(i)) { active = i; break; } }
+
+      const solved = ER.getProgress().filter(x => x >= 1 && x <= N).length;
+      const times = [];
+      for (let i = 1; i <= N; i++) { const t = ER.getLevelTime(i); if (typeof t === "number") times.push(t); }
+      const fastest = times.length ? fmtSec(Math.min(...times)) : "—";
+      const grp = ER.getGroupName();
+
+      let cards = "";
+      for (let i = 1; i <= N; i++) {
+        const name = ER.LEVEL_NAMES[i - 1];
+        if (ER.isComplete(i)) {
+          const t = ER.getLevelTime(i);
+          const meta = (typeof t === "number")
+            ? "opgelost in <b>" + fmtSec(t) + "</b>"
+            : "vrijgegeven door spelleider";
+          cards +=
+            '<div class="mc-card mc-done"><span class="num">' + String(i).padStart(2, "0") + "</span>" +
+            '<div class="st">✔ Voltooid</div><h3>' + name + "</h3>" +
+            '<div class="meta">' + meta + "</div></div>";
+        } else if (i === active) {
+          cards +=
+            '<div class="mc-card mc-active"><span class="num">' + String(i).padStart(2, "0") + "</span>" +
+            '<div class="st"><span class="mc-pulse"></span>Actief</div><h3>' + name + "</h3>" +
+            '<div class="meta">bezig — <b id="mc-run">--:--</b></div>' +
+            '<a class="go" href="levels/level' + i + '.html">▸ Hervat missie</a></div>';
+        } else {
+          cards +=
+            '<div class="mc-card mc-locked"><span class="mc-lock">🔒</span><span class="num">' + String(i).padStart(2, "0") + "</span>" +
+            '<div class="st">Vergrendeld</div><h3>' + REDACTED[i - 1] + "</h3>" +
+            '<div class="meta">Ontgrendelt na missie ' + String(i - 1).padStart(2, "0") + "</div></div>";
+        }
+      }
+
+      const allDone = active === null;
+      const backLine = allDone
+        ? '<a class="er-btn er-btn-primary" href="finale.html">▸ Voltooi de missie</a>'
+        : '<a href="index.html">‹ Terug naar de intro</a>';
+
+      app.innerHTML =
+        '<div class="mc-top"><span class="brand">◈ MISSIE 2150</span>' +
+        (grp ? '<span class="group">👥 ' + grp.replace(/[<>&]/g, "") + "</span>" : "") +
+        '<span class="timer" id="mc-timer">--:--<small>RESTEREND</small></span></div>' +
+        '<div class="mc-head"><h1>▸ Missiecontrole</h1>' +
+        "<p>" + (allDone
+          ? "Alle sloten zijn gekraakt. Activeer de zelfvernietiging en red de mensheid."
+          : "Zes missies staan tussen jullie en de redding van de mensheid. Kies je volgende doelwit, kadet.") + "</p></div>" +
+        '<div class="mc-stats">' +
+        '<div class="mc-stat"><div class="k">Opgelost</div><div class="v">' + solved + " / " + N + "</div></div>" +
+        '<div class="mc-stat"><div class="k">Tijd gespeeld</div><div class="v" id="mc-played">--:--</div></div>' +
+        '<div class="mc-stat"><div class="k">Snelste kraak</div><div class="v">' + fastest + "</div></div>" +
+        '<div class="mc-stat"><div class="k">Nog te gaan</div><div class="v">' + (N - solved) + "</div></div>" +
+        "</div>" +
+        '<div class="mc-bar"><span style="width:' + Math.round((solved / N) * 100) + '%"></span></div>' +
+        '<div class="mc-grid">' + cards + "</div>" +
+        '<div class="mc-back">' + backLine + "</div>";
+
+      function tick() {
+        const rem = ER.remainingMs();
+        const tEl = document.getElementById("mc-timer");
+        if (tEl) tEl.innerHTML = (rem === null ? "--:--" : (rem <= 0 ? "TIJD OM" : ER.fmt(rem))) + "<small>RESTEREND</small>";
+        const pEl = document.getElementById("mc-played");
+        if (pEl) pEl.textContent = ER.fmt(ER.elapsedMs());
+        const rEl = document.getElementById("mc-run");
+        if (rEl && active !== null) {
+          const entry = levelEntry(active);
+          rEl.textContent = entry ? ER.fmt(Date.now() - entry) : "bezig";
+        }
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+</body>
+</html>

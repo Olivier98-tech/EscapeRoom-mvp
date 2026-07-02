@@ -78,7 +78,7 @@
         const next = Math.min(p.length + 1, ER.TOTAL_LEVELS);
         const resume = document.createElement("p");
         resume.innerHTML = '⏳ Er loopt al een missie. <a href="levels/level' + next +
-          '.html">Ga verder bij level ' + next + " ▸</a>";
+          '.html">Ga verder bij level ' + next + ' ▸</a> · <a href="dashboard.html">◈ Missiecontrole</a>';
         btn.insertAdjacentElement("afterend", resume);
         btn.textContent = "▶ Opnieuw starten (reset)";
       }

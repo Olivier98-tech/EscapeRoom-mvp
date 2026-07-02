@@ -19,6 +19,7 @@ en [`docs/PREPARATION-CHECKLIST.md`](docs/PREPARATION-CHECKLIST.md) (klaarzetten
 ```
 ├── index.html              # Intro + start van de missie (start de timer)
 ├── admin.html              # Spelleider portaal (PIN-beveiligd)
+├── dashboard.html          # Missiecontrole (hub: voortgang, tijden, levelkeuze)
 ├── finale.html             # Overwinningsscherm
 ├── levels/
 │   ├── level1.html         # QR-cijfercode
@@ -39,6 +40,7 @@ en [`docs/PREPARATION-CHECKLIST.md`](docs/PREPARATION-CHECKLIST.md) (klaarzetten
 - **Voortgangsbeveiliging** — levels zijn niet via de URL over te slaan; voortgang overleeft een refresh
 - **Overgangsschermen** — elk level opent met een korte verhaal-/briefingtransitie; spelers landen nooit direct in een opdracht (ook niet na een skip door de spelleider)
 - **Groepsnaam & meerdere groepen** — elke groep speelt op een eigen computer (sessies zijn automatisch gescheiden); een optionele groepsnaam verschijnt in de HUD en het admin portaal
+- **Missiecontrole** — een hub (`dashboard.html`, bereikbaar via de HUD) met voortgang, opgeloste tijd per missie, snelste kraak en totale speeltijd; nog niet bereikte missies zijn „geredacteerd" (slot), voltooide missies tonen hun tijd
 - **Hint-systeem** — na 2 foute pogingen per puzzel wordt een hint beschikbaar
 - **Eerlijke lockouts** — de eerste 3 pogingen zijn vrij; daarna een oplopende wachttijd (10, 20, 30… sec) tot maximaal 1 minuut, opgeslagen in localStorage (refresh omzeilt niets)
 - **Geheime antwoorden** — antwoorden staan alleen als hash in de code; view-source verklapt niets

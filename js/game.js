@@ -22,11 +22,15 @@ const ER = (() => {
     fails:    "er_fails_",     // + level id → number of wrong attempts
     lock:     "er_lock_",      // + level id → timestamp until which input is locked
     group:    "er_group",      // team/group name (shown in HUD + admin portal)
-    intro:    "er_intro_"      // + level number → has this level's intro been shown?
+    intro:    "er_intro_",     // + level number → has this level's intro been shown?
+    lentry:   "er_lentry_",    // + level number → timestamp first entered
+    ltime:    "er_ltime_"      // + level number → solve time in seconds
   };
 
   const TOTAL_LEVELS = 6;
   const PUZZLE_IDS = ["l1", "l2", "l3", "l4", "l5", "l6a", "l6b", "l6c"];
+  const LEVEL_NAMES = ["De Cijfercode", "De Firewall", "Hexa Lockdown",
+                       "Code van de Vier", "Kernel Infiltratie", "De Finale"];
 
   // Lockout policy: first 3 wrong attempts are free (no wait). From the 4th
   // wrong attempt on, the wait grows 10s per attempt (10, 20, 30, ...) up to a
@@ -95,7 +99,7 @@ const ER = (() => {
       store.del(K.fails + id);
       store.del(K.lock + id);
     });
-    for (let i = 1; i <= TOTAL_LEVELS; i++) store.del(K.intro + i);
+    for (let i = 1; i <= TOTAL_LEVELS; i++) { store.del(K.intro + i); store.del(K.lentry + i); store.del(K.ltime + i); }
     const cfg = getConfig();
     cfg.extraMs = 0;
     setConfig(cfg);
@@ -108,7 +112,7 @@ const ER = (() => {
       store.del(K.fails + id);
       store.del(K.lock + id);
     });
-    for (let i = 1; i <= TOTAL_LEVELS; i++) store.del(K.intro + i);
+    for (let i = 1; i <= TOTAL_LEVELS; i++) { store.del(K.intro + i); store.del(K.lentry + i); store.del(K.ltime + i); }
   }
 
   function isStarted() { return store.get(K.start, null) !== null; }
@@ -160,6 +164,22 @@ const ER = (() => {
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  // ---------- Per-level timing ----------
+  function startLevelTimer(n) {
+    if (store.get(K.lentry + n, null) === null) store.set(K.lentry + n, Date.now());
+  }
+  function recordLevelSolved(n) {
+    if (store.get(K.ltime + n, null) !== null) return;
+    const entry = store.get(K.lentry + n, null);
+    if (entry === null) return;
+    store.set(K.ltime + n, Math.max(0, Math.round((Date.now() - entry) / 1000)));
+  }
+  function getLevelTime(n) { return store.get(K.ltime + n, null); }
+  function elapsedMs() {
+    const start = store.get(K.start, null);
+    return start === null ? 0 : Date.now() - start;
   }
 
   // ---------- Answers ----------
@@ -219,6 +239,7 @@ const ER = (() => {
 
   function initHUD(level, basePath) {
     hudLevel = level;
+    startLevelTimer(level);
     const hud = document.createElement("div");
     hud.className = "er-hud";
     const grp = getGroupName();
@@ -226,6 +247,7 @@ const ER = (() => {
       '<span class="er-hud-item er-hud-mission">MISSIE 2150</span>' +
       (grp ? '<span class="er-hud-item er-hud-group">👥 ' + escapeHtml(grp) + "</span>" : "") +
       '<span class="er-hud-item">LEVEL <strong>' + level + "</strong>/" + TOTAL_LEVELS + "</span>" +
+      '<a class="er-hud-item er-hud-link" href="' + basePath + 'dashboard.html">◈ missiecontrole</a>' +
       '<span class="er-hud-item er-hud-timer" id="er-timer">--:--</span>' +
       '<button class="er-hud-btn" id="er-sound-btn" type="button">🔊</button>';
     document.body.prepend(hud);
@@ -394,6 +416,7 @@ const ER = (() => {
   /** Shows the story overlay after completing a level. */
   function showSuccess(level, title, story, nextHref) {
     completeLevel(level);
+    recordLevelSolved(level);
     const overlay = document.createElement("div");
     overlay.className = "er-overlay";
     overlay.innerHTML =
@@ -401,6 +424,7 @@ const ER = (() => {
       "<h2>" + title + "</h2>" +
       "<p>" + story + "</p>" +
       '<a class="er-btn er-btn-primary" href="' + nextHref + '">Volgende ▸</a>' +
+      '<a class="er-btn er-btn-secondary" href="../dashboard.html" style="margin-left:.6rem">◈ Missiecontrole</a>' +
       "</div>";
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("er-overlay-visible"));
@@ -422,13 +446,14 @@ const ER = (() => {
   function checkPin(pin) { return hash(normalize(pin)) === HASHES.pin; }
 
   return {
-    TOTAL_LEVELS, HINT_AFTER_FAILS,
+    TOTAL_LEVELS, LEVEL_NAMES, HINT_AFTER_FAILS,
     FREE_ATTEMPTS, LOCKOUT_STEP_SECONDS, LOCKOUT_MAX_SECONDS, lockoutSecondsFor,
     hash, normalize,
     getConfig, setConfig, startGame, resetGame, isStarted,
-    remainingMs, addTime, fmt,
+    remainingMs, elapsedMs, addTime, fmt,
     getProgress, completeLevel, isComplete, guard,
     getGroupName, setGroupName,
+    startLevelTimer, recordLevelSolved, getLevelTime,
     check, checkRaw, registerFail, getFails, lockedForMs, clearLocks,
     soundOn, toggleSound, play,
     initHUD, wirePuzzle, showLevelIntro, showSuccess, offerSkipBanner,

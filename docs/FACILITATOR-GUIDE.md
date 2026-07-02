@@ -87,3 +87,13 @@ Elk level begint met een kort transitiescherm (verhaal + „▸ Start opdracht")
 zodat spelers eerst de context krijgen en nooit rechtstreeks in een opdracht
 belanden — ook niet wanneer je een level **overslaat**: de groep gaat dan naar
 het overgangsscherm van het volgende level, niet direct naar de puzzel.
+
+## 🗺 Missiecontrole (dashboard)
+
+Via de HUD-link „◈ missiecontrole" (of na elk opgelost level) komen spelers op
+een overzichtspagina: welke missies opgelost zijn en hoe lang ze erover deden,
+de snelste kraak, de totale speeltijd en hun volgende doelwit. De actieve missie
+heeft een „▸ Hervat missie"-knop; nog niet bereikte missies staan geredacteerd
+(met slot). Voltooide missies zijn alleen-lezen — ze tonen de tijd maar openen
+niet opnieuw. Overgeslagen levels (via het admin portaal) tonen „vrijgegeven
+door spelleider" in plaats van een tijd.
