@@ -65,3 +65,25 @@ Loopt een groep ≥5 min achter op schema? Wijs ze subtiel op de hint-knop, of g
 | Team is per ongeluk gereset | Admin → „Start missie nu", en sla reeds behaalde levels over met „Sla over". |
 | Spelers proberen de broncode te lezen | Antwoorden staan alleen als hash in de code; view-source verklapt niets. |
 | Pagina wijst terug naar de intro | Het spel is niet gestart op dat apparaat, of een eerder level is nog niet voltooid (levels kunnen niet worden overgeslagen via de URL). |
+
+## 👥 Meerdere groepen tegelijk
+
+De escape room draait volledig in de browser, zónder server. Elke groep speelt
+daarom op een **eigen computer**: de timer, voortgang en blokkades worden per
+toestel apart bewaard — groepen beïnvloeden elkaar niet.
+
+- **Groepsnaam:** op de introdpagina kan elke groep een naam invullen. Die naam
+  staat daarna in de HUD-balk (tijdens het spel) en bovenaan het admin portaal,
+  zodat je meteen ziet welk toestel bij welke groep hoort.
+- **Beheer per toestel:** open `admin.html` op de computer van de groep die je
+  wilt beheren (timer, blokkades wissen, level overslaan, reset). Het admin
+  portaal werkt op het toestel waar je het opent.
+- **Reset vóór elke nieuwe groep:** gebruik „Reset alles" om timer, voortgang,
+  pogingen, blokkades én de getoonde overgangsschermen te wissen.
+
+## 🎬 Overgangsschermen
+
+Elk level begint met een kort transitiescherm (verhaal + „▸ Start opdracht"),
+zodat spelers eerst de context krijgen en nooit rechtstreeks in een opdracht
+belanden — ook niet wanneer je een level **overslaat**: de groep gaat dan naar
+het overgangsscherm van het volgende level, niet direct naar de puzzel.

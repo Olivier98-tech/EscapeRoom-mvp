@@ -178,6 +178,8 @@ input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible
 .er-success { color: var(--terminal); }
 .er-locked  { color: var(--alert); }
 .er-error   { color: var(--alert); }
+.er-hud-group { color: var(--amber); }
+.er-intro-eyebrow { color: var(--amber); letter-spacing: 0.15em; font-size: 0.8rem; margin: 0 0 0.5rem; }
 
 .er-hint {
   display: none;
@@ -297,6 +299,4 @@ img.er-img { max-width: min(100%, 380px); border-radius: 8px; display: block; ma
 .er-tag-open { color: var(--muted); }
 
 @media (max-width: 520px) {
-  .er-hud { gap: 0.7rem; font-size: 0.75rem; }
-  .er-panel { padding: 1rem; }
-}
+  .er-hud { gap: 0.7rem; font-size: 0.75rem

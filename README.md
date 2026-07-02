@@ -37,6 +37,8 @@ en [`docs/PREPARATION-CHECKLIST.md`](docs/PREPARATION-CHECKLIST.md) (klaarzetten
 
 - **Globale afteltimer** — zichtbaar op elk level, instelbaar (5–240 min) via het admin portaal, met +5/+10 min tijdens het spel
 - **Voortgangsbeveiliging** — levels zijn niet via de URL over te slaan; voortgang overleeft een refresh
+- **Overgangsschermen** — elk level opent met een korte verhaal-/briefingtransitie; spelers landen nooit direct in een opdracht (ook niet na een skip door de spelleider)
+- **Groepsnaam & meerdere groepen** — elke groep speelt op een eigen computer (sessies zijn automatisch gescheiden); een optionele groepsnaam verschijnt in de HUD en het admin portaal
 - **Hint-systeem** — na 2 foute pogingen per puzzel wordt een hint beschikbaar
 - **Eerlijke lockouts** — de eerste 3 pogingen zijn vrij; daarna een oplopende wachttijd (10, 20, 30… sec) tot maximaal 1 minuut, opgeslagen in localStorage (refresh omzeilt niets)
 - **Geheime antwoorden** — antwoorden staan alleen als hash in de code; view-source verklapt niets

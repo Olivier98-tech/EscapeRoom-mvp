@@ -20,7 +20,9 @@ const ER = (() => {
     progress: "er_progress",   // array of completed level numbers
     sound:    "er_sound",      // "on" | "off"
     fails:    "er_fails_",     // + level id → number of wrong attempts
-    lock:     "er_lock_"       // + level id → timestamp until which input is locked
+    lock:     "er_lock_",      // + level id → timestamp until which input is locked
+    group:    "er_group",      // team/group name (shown in HUD + admin portal)
+    intro:    "er_intro_"      // + level number → has this level's intro been shown?
   };
 
   const TOTAL_LEVELS = 6;
@@ -93,6 +95,7 @@ const ER = (() => {
       store.del(K.fails + id);
       store.del(K.lock + id);
     });
+    for (let i = 1; i <= TOTAL_LEVELS; i++) store.del(K.intro + i);
     const cfg = getConfig();
     cfg.extraMs = 0;
     setConfig(cfg);
@@ -105,6 +108,7 @@ const ER = (() => {
       store.del(K.fails + id);
       store.del(K.lock + id);
     });
+    for (let i = 1; i <= TOTAL_LEVELS; i++) store.del(K.intro + i);
   }
 
   function isStarted() { return store.get(K.start, null) !== null; }
@@ -147,6 +151,15 @@ const ER = (() => {
       }
     }
     return true;
+  }
+
+  // ---------- Group / team name ----------
+  function getGroupName() { return store.get(K.group, ""); }
+  function setGroupName(name) { store.set(K.group, String(name || "").trim().slice(0, 40)); }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
   // ---------- Answers ----------
@@ -208,8 +221,10 @@ const ER = (() => {
     hudLevel = level;
     const hud = document.createElement("div");
     hud.className = "er-hud";
+    const grp = getGroupName();
     hud.innerHTML =
       '<span class="er-hud-item er-hud-mission">MISSIE 2150</span>' +
+      (grp ? '<span class="er-hud-item er-hud-group">👥 ' + escapeHtml(grp) + "</span>" : "") +
       '<span class="er-hud-item">LEVEL <strong>' + level + "</strong>/" + TOTAL_LEVELS + "</span>" +
       '<span class="er-hud-item er-hud-timer" id="er-timer">--:--</span>' +
       '<button class="er-hud-btn" id="er-sound-btn" type="button">🔊</button>';
@@ -330,6 +345,52 @@ const ER = (() => {
     refreshLock();
   }
 
+  // ---------- Level intro / transition screens ----------
+  const INTROS = {
+    1: { title: "Level 1 — De Cijfercode",
+         text: "Jullie zijn binnen. Het eerste beveiligingsluik blokkeert de toegang. De AI heeft haar toegangscode verstopt in een QR-transmissie. Scan het signaal, kraak de 4-cijferige code en open de eerste deur." },
+    2: { title: "Level 2 — De Firewall",
+         text: "De eerste deur staat open — maar de AI heeft razendsnel haar firewall versterkt. Een onderschept commando bevat de sleutel, versluierd in een verschoven code. Ontcijfer het en schakel de firewall uit." },
+    3: { title: "Level 3 — Hexa Lockdown",
+         text: "De firewall ligt plat. Dieper in het systeem stuiten jullie op een hexadecimale vergrendeling. Vertaal de code terug naar leesbare tekst en kom één stap dichter bij de kern." },
+    4: { title: "Level 4 — Code van de Vier",
+         text: "De dataversleuteling is gekraakt. Voorbij deze deur ligt de AI-controlekamer, beveiligd met een symbolencode. De juiste volgorde vinden jullie op een fysieke aanwijzing in de ruimte. 🚨 Alarmfase actief." },
+    5: { title: "Level 5 — Kernel Infiltratie",
+         text: "Het alarm valt stil. Jullie staan in het hart van het systeem: de AI Kernel. Zij daagt jullie uit met een raadsel van getallen. Kies de juiste sleutels uit de matrix en infiltreer de kern." },
+    6: { title: "Level 6 — De Finale",
+         text: "Dit is het. Eén laatste verdedigingslinie scheidt jullie van de zelfvernietigingsknop: drie finale sloten. Los ze alle drie op — de tijd dringt. De toekomst van de mensheid ligt in jullie handen." }
+  };
+
+  /**
+   * Shows a full-screen transition/intro overlay for a level. Appears once per
+   * level (persisted); pass { force: true } to always show. The puzzle sits
+   * behind it, so players never land straight in an exercise (also on skip).
+   */
+  function showLevelIntro(level, opts) {
+    opts = opts || {};
+    const data = INTROS[level];
+    if (!data) return;
+    if (!opts.force && store.get(K.intro + level, false)) return;
+    const overlay = document.createElement("div");
+    overlay.className = "er-overlay er-intro-overlay";
+    overlay.innerHTML =
+      '<div class="er-overlay-card">' +
+      '<p class="er-intro-eyebrow">▸ TRANSMISSIE ONTVANGEN</p>' +
+      "<h2>" + data.title + "</h2>" +
+      "<p>" + data.text + "</p>" +
+      '<button class="er-btn er-btn-primary" id="er-intro-start" type="button">▸ Start opdracht</button>' +
+      "</div>";
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add("er-overlay-visible"));
+    const startBtn = document.getElementById("er-intro-start");
+    startBtn.focus();
+    startBtn.addEventListener("click", () => {
+      store.set(K.intro + level, true);
+      overlay.classList.remove("er-overlay-visible");
+      setTimeout(() => overlay.remove(), 300);
+    });
+  }
+
   /** Shows the story overlay after completing a level. */
   function showSuccess(level, title, story, nextHref) {
     completeLevel(level);
@@ -367,9 +428,10 @@ const ER = (() => {
     getConfig, setConfig, startGame, resetGame, isStarted,
     remainingMs, addTime, fmt,
     getProgress, completeLevel, isComplete, guard,
+    getGroupName, setGroupName,
     check, checkRaw, registerFail, getFails, lockedForMs, clearLocks,
     soundOn, toggleSound, play,
-    initHUD, wirePuzzle, showSuccess, offerSkipBanner,
+    initHUD, wirePuzzle, showLevelIntro, showSuccess, offerSkipBanner,
     checkPin
   };
 })();

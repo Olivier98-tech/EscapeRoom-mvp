@@ -22,6 +22,7 @@
 
     <!-- ── Dashboard ── -->
     <div id="dashboard" style="display:none">
+      <p id="admin-group" style="text-align:center;color:var(--amber);margin:0 0 1rem"></p>
       <div class="er-admin-grid">
 
         <section class="er-panel">
@@ -121,6 +122,9 @@
 
       function render() {
         document.getElementById("duration-input").value = ER.getConfig().durationMin;
+        const g = ER.getGroupName();
+        document.getElementById("admin-group").textContent =
+          g ? "👥 Groep op dit toestel: " + g : "Geen groepsnaam ingesteld op dit toestel";
         renderTimer();
         renderProgress();
       }
