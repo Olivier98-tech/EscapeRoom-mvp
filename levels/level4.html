@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 4: Code van de Vier</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <main class="er-page">
+    <h1>Level 4: Code van de Vier</h1>
+    <p>🚨 Alarmfase actief. Selecteer de juiste 4 symbolen om de AI-controlekamer te ontgrendelen.</p>
+
+    <button class="er-btn er-btn-secondary" id="briefing-btn" type="button">🔊 Speel noodbriefing af</button>
+
+    <div class="er-lock-panel" id="lock-panel">
+      <select aria-label="Symbool 1"><option value="1">⚫</option><option value="2">⚪</option><option value="3">◉</option><option value="4">◎</option><option value="5">▲</option><option value="6">◆</option></select>
+      <select aria-label="Symbool 2"><option value="1">⚫</option><option value="2">⚪</option><option value="3">◉</option><option value="4">◎</option><option value="5">▲</option><option value="6">◆</option></select>
+      <select aria-label="Symbool 3"><option value="1">⚫</option><option value="2">⚪</option><option value="3">◉</option><option value="4">◎</option><option value="5">▲</option><option value="6">◆</option></select>
+      <select aria-label="Symbool 4"><option value="1">⚫</option><option value="2">⚪</option><option value="3">◉</option><option value="4">◎</option><option value="5">▲</option><option value="6">◆</option></select>
+    </div>
+
+    <button class="er-btn er-btn-primary" id="submit-btn" type="button">Ontgrendel</button>
+
+    <p class="er-feedback" id="feedback"></p>
+    <button class="er-btn er-btn-secondary" id="hint-btn" type="button" disabled>💡 Hint</button>
+    <p class="er-hint" id="hint-box"></p>
+  </main>
+
+  <audio id="er-audio-correct" src="../assets/audio/correct.mp3" preload="auto"></audio>
+  <audio id="er-audio-error" src="../assets/audio/error.mp3" preload="auto"></audio>
+  <audio id="briefing-1" src="../assets/audio/level4-briefing.mp3" preload="auto"></audio>
+  <audio id="briefing-2" src="../assets/audio/level4-followup.mp3" preload="auto"></audio>
+  <audio id="alarm" src="../assets/audio/alarm.mp3" preload="auto" loop></audio>
+
+  <script src="../js/game.js"></script>
+  <script>
+    if (ER.guard(4, "../")) {
+      ER.initHUD(4, "../");
+      ER.offerSkipBanner(4, "level5.html");
+
+      // Browsers block autoplay: the briefing starts from an explicit button click.
+      const briefingBtn = document.getElementById("briefing-btn");
+      const b1 = document.getElementById("briefing-1");
+      const b2 = document.getElementById("briefing-2");
+      const alarm = document.getElementById("alarm");
+
+      briefingBtn.addEventListener("click", () => {
+        if (!ER.soundOn()) return;
+        briefingBtn.disabled = true;
+        document.body.classList.add("er-time-up"); // reuse alarm flash styling
+        b1.play().catch(() => {});
+        b1.onended = () => {
+          b2.play().catch(() => {});
+          b2.onended = () => { alarm.volume = 0.5; alarm.play().catch(() => {}); };
+        };
+      });
+
+      const selects = document.querySelectorAll("#lock-panel select");
+
+      ER.wirePuzzle({
+        id: "l4",
+        submitEl: "submit-btn",
+        feedbackEl: "feedback",
+        hintBtn: "hint-btn",
+        hintEl: "hint-box",
+        hintText: "De volgorde van de symbolen staat op de fysieke aanwijzing die de spelleider in de ruimte heeft verstopt. Zoek naar vier gemarkeerde symbolen — de volgorde telt!",
+        getValue: () => Array.from(selects).map(s => s.value).join(""),
+        onSuccess: () => {
+          alarm.pause();
+          document.body.classList.remove("er-time-up");
+          ER.showSuccess(
+            4,
+            "✅ Controlekamer ontgrendeld",
+            "Het alarm valt stil. Jullie staan nu in het hart van het systeem — de AI Kernel. Nog twee stappen tussen jullie en de redding van de mensheid.",
+            "level5.html"
+          );
+        }
+      });
+    }
+  </script>
+</body>
+</html>

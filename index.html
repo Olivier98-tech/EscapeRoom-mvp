@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Room: Red de Mensheid van de Kwaadaardige Code</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="er-page er-hero">
+    <h1>RED DE MENSHEID VAN DE KWAADAARDIGE CODE</h1>
+    <h2>De toekomst ligt in jullie handen</h2>
+
+    <img class="er-img" src="assets/images/intro.png" alt="Cyberagenten voor een gloeiende terminal" style="max-width:min(100%,560px)" />
+
+    <div class="er-panel">
+      <p>
+        Het is het jaar 2150. Kunstmatige intelligentie is ontspoord. De Kwaadaardige
+        Code heeft wereldwijd de controle overgenomen en bedreigt het voortbestaan van
+        de mensheid. Jullie zijn de elite cyberagenten. Betreed de virtuele escape room,
+        decodeer de corrupte logica, en herstart de wereld.
+      </p>
+      <p>
+        <strong style="color:var(--amber)">⏱ De firewall sluit zich. Zodra jullie starten, begint de klok te lopen.</strong>
+      </p>
+    </div>
+
+    <button class="er-btn er-btn-primary" id="start-btn" type="button">▶ Start de missie</button>
+    <p id="start-status" class="er-feedback"></p>
+
+    <footer style="margin-top:3rem;color:var(--muted);font-size:0.85rem">
+      &copy; 2026 Cyber Resistance Network · <a href="admin.html" style="color:var(--muted)">spelleider</a>
+    </footer>
+  </main>
+
+  <audio id="introVoice" src="assets/audio/intro-voice.mp3" preload="auto"></audio>
+  <audio id="introAmbience" src="assets/audio/intro-ambience.mp3" preload="auto"></audio>
+
+  <script src="js/game.js"></script>
+  <script>
+    (function () {
+      const btn = document.getElementById("start-btn");
+      const status = document.getElementById("start-status");
+      const voice = document.getElementById("introVoice");
+      const ambience = document.getElementById("introAmbience");
+
+      function go() { window.location.href = "levels/level1.html"; }
+
+      btn.addEventListener("click", () => {
+        ER.startGame();
+        btn.disabled = true;
+        status.className = "er-feedback er-success";
+        status.textContent = "▸ Verbinding met mainframe... briefing wordt afgespeeld.";
+
+        if (!ER.soundOn()) { go(); return; }
+
+        // Play briefing, then ambience, then enter level 1.
+        // Safety net: if audio fails or takes too long, continue anyway.
+        const failsafe = setTimeout(go, 45000);
+        voice.play().then(() => {
+          voice.onended = () => {
+            ambience.play().catch(() => {});
+            const wait = isFinite(ambience.duration) ? ambience.duration * 1000 : 3000;
+            setTimeout(() => { clearTimeout(failsafe); go(); }, Math.min(wait, 15000));
+          };
+        }).catch(() => { clearTimeout(failsafe); go(); });
+      });
+
+      // Returning players who already started: offer to resume.
+      if (ER.isStarted()) {
+        const p = ER.getProgress();
+        const next = Math.min(p.length + 1, ER.TOTAL_LEVELS);
+        const resume = document.createElement("p");
+        resume.innerHTML = '⏳ Er loopt al een missie. <a href="levels/level' + next +
+          '.html">Ga verder bij level ' + next + " ▸</a>";
+        btn.insertAdjacentElement("afterend", resume);
+        btn.textContent = "▶ Opnieuw starten (reset)";
+      }
+    })();
+  </script>
+</body>
+</html>

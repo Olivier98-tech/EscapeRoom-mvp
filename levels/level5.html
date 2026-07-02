@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 5: Kernel Infiltratie</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    #matrix-canvas { position: fixed; inset: 0; z-index: 0; opacity: 0.5; }
+    .er-page { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+  <canvas id="matrix-canvas" aria-hidden="true"></canvas>
+
+  <main class="er-page">
+    <h1>Level 5: Infiltreer de AI Kernel</h1>
+    <div class="er-panel" style="text-align:center">
+      <p style="margin:0">De kernel fluistert haar raadsel:</p>
+      <p style="color:var(--amber);font-size:1.1rem">
+        „Mijn vier sleutels zijn <strong>priemkracht in het kwadraat</strong> —<br>
+        de eerste vier wachters, elk met zichzelf vermenigvuldigd."
+      </p>
+    </div>
+    <p>Selecteer de vier juiste getallen in de matrix en bevestig.</p>
+
+    <div class="er-matrix" id="matrix-grid" role="group" aria-label="Kernel matrix"></div>
+
+    <button class="er-btn er-btn-primary" id="submit-btn" type="button">Bevestig code</button>
+
+    <p class="er-feedback" id="feedback"></p>
+    <button class="er-btn er-btn-secondary" id="hint-btn" type="button" disabled>💡 Hint</button>
+    <p class="er-hint" id="hint-box"></p>
+  </main>
+
+  <audio id="er-audio-correct" src="../assets/audio/correct.mp3" preload="auto"></audio>
+  <audio id="er-audio-error" src="../assets/audio/error.mp3" preload="auto"></audio>
+
+  <script src="../js/game.js"></script>
+  <script>
+    if (ER.guard(5, "../")) {
+      ER.initHUD(5, "../");
+      ER.offerSkipBanner(5, "level6.html");
+
+      // --- Matrix rain background ---
+      const canvas = document.getElementById("matrix-canvas");
+      const ctx = canvas.getContext("2d");
+      function sizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
+      sizeCanvas();
+      addEventListener("resize", sizeCanvas);
+      const glyphs = "アカサタナハマヤラワ0123456789ABCDEF";
+      const fontSize = 14;
+      let drops = [];
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduced) {
+        drops = Array.from({ length: Math.ceil(innerWidth / fontSize) }, () => 1);
+        setInterval(() => {
+          ctx.fillStyle = "rgba(0,0,0,0.06)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#0F6";
+          ctx.font = fontSize + "px monospace";
+          for (let i = 0; i < drops.length; i++) {
+            ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+          }
+        }, 40);
+      }
+
+      // --- Number grid ---
+      const grid = document.getElementById("matrix-grid");
+      const selected = new Set();
+      for (let i = 0; i < 64; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = String(i).padStart(2, "0");
+        btn.setAttribute("aria-pressed", "false");
+        btn.addEventListener("click", () => {
+          if (selected.has(i)) { selected.delete(i); btn.setAttribute("aria-pressed", "false"); }
+          else { selected.add(i); btn.setAttribute("aria-pressed", "true"); }
+        });
+        grid.appendChild(btn);
+      }
+
+      ER.wirePuzzle({
+        id: "l5",
+        submitEl: "submit-btn",
+        feedbackEl: "feedback",
+        hintBtn: "hint-btn",
+        hintEl: "hint-box",
+        hintText: "De „eerste vier wachters" zijn de eerste vier priemgetallen: 2, 3, 5 en 7. Kwadrateer ze (vermenigvuldig elk met zichzelf) en selecteer die vier uitkomsten.",
+        getValue: () => [...selected].sort((a, b) => a - b).join(","),
+        onSuccess: () => ER.showSuccess(
+          5,
+          "✅ Kernel geïnfiltreerd",
+          "Jullie zitten in de kern. Eén laatste verdedigingslinie scheidt jullie van de zelfvernietigingsknop: drie finale raadsels. Los ze alle drie op — de tijd dringt.",
+          "level6.html"
+        )
+      });
+    }
+  </script>
+</body>
+</html>

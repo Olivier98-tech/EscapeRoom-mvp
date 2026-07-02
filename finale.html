@@ -1,67 +1,48 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎉 Missie Geslaagd</title>
-  <style>
-    body {
-      background-color: black;
-      color: #00ff00;
-      font-family: 'Courier New', monospace;
-      text-align: center;
-      padding: 2rem;
-      animation: fadeIn 2s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    h1 {
-      color: #ff3333;
-      margin-bottom: 1rem;
-      animation: glow 1.5s infinite alternate;
-    }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #ff3c3c; }
-      to { text-shadow: 0 0 20px #ff3c3c, 0 0 30px #ff3c3c; }
-    }
-
-    img {
-      max-width: 90%;
-      border: 2px solid #0f0;
-      border-radius: 10px;
-      margin-top: 1rem;
-      animation: popin 1.2s ease;
-    }
-
-    @keyframes popin {
-      0% { transform: scale(0.8); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    p {
-      color: #ffaa00;
-      font-size: 1.3rem;
-      margin-top: 1rem;
-      animation: typewriter 4s steps(40, end);
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 2px solid #ffaa00;
-    }
-
-    @keyframes typewriter {
-      from { width: 0 }
-      to { width: 100% }
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <h1>💥 De AI is vernietigd!</h1>
-  <p>De mensheid is gered. De code is gekraakt. 🎉</p>
-  <img src="A_digital_painting_depicts_four_teenagers_celebrat.png" alt="Mensheid heeft gewonnen">
-  <audio src="11L-Fireworks_and_cheeri-1751844231536.mp3" autoplay loop></audio>
+  <main class="er-page er-finale">
+    <h1>💥 DE AI IS VERNIETIGD!</h1>
+    <p style="color:var(--amber);font-size:1.25rem">De mensheid is gered. De code is gekraakt. 🎉</p>
+    <p id="final-time" style="color:var(--terminal);font-size:1.1rem"></p>
+
+    <img class="er-img" src="assets/images/finale.png" alt="Vier jonge cyberagenten vieren de overwinning" style="max-width:min(100%,540px);border:2px solid var(--terminal)" />
+
+    <div style="margin-top:2rem">
+      <button class="er-btn er-btn-secondary" id="cheer-btn" type="button">🎆 Speel overwinningsmuziek</button>
+      <a class="er-btn er-btn-secondary" href="index.html" style="margin-left:0.5rem">↺ Nieuwe missie</a>
+    </div>
+  </main>
+
+  <audio id="fireworks" src="assets/audio/fireworks.mp3" preload="auto" loop></audio>
+
+  <script src="js/game.js"></script>
+  <script>
+    // Only reachable after finishing level 6
+    if (!ER.isComplete(6)) {
+      window.location.href = ER.isStarted() ? "levels/level1.html" : "index.html";
+    } else {
+      const rem = ER.remainingMs();
+      const el = document.getElementById("final-time");
+      if (rem !== null && rem > 0) {
+        el.textContent = "⏱ Ontsnapt met nog " + ER.fmt(rem) + " op de klok!";
+      } else if (rem !== null) {
+        el.textContent = "⏱ Ontsnapt — al kostte het iets meer tijd dan gepland...";
+      }
+
+      const fw = document.getElementById("fireworks");
+      document.getElementById("cheer-btn").addEventListener("click", () => {
+        if (fw.paused) { fw.play().catch(() => {}); } else { fw.pause(); }
+      });
+      // Try autoplay too; if the browser blocks it, the button is the fallback.
+      if (ER.soundOn()) fw.play().catch(() => {});
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 6: De Finale</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <main class="er-page">
+    <h1>💀 Level 6: De Finale</h1>
+    <p>Drie sloten. Drie raadsels. Los ze <strong>alle drie</strong> op om de zelfvernietiging te activeren.</p>
+
+    <!-- ── Puzzle 1: QR ─────────────────────────── -->
+    <section class="er-panel">
+      <h2>🧩 Slot 1 — Visuele QR</h2>
+      <img class="er-img" src="../assets/images/qr-level6.png" alt="QR-raadsel" style="max-width:250px" />
+      <div style="text-align:center">
+        <input type="text" id="qr-input" inputmode="numeric" maxlength="4" placeholder="Code uit QR" autocomplete="off" />
+        <button class="er-btn er-btn-primary" id="qr-submit" type="button">Controleer</button>
+        <p class="er-feedback" id="qr-feedback"></p>
+        <button class="er-btn er-btn-secondary" id="qr-hint-btn" type="button" disabled>💡 Hint</button>
+        <p class="er-hint" id="qr-hint"></p>
+      </div>
+    </section>
+
+    <!-- ── Puzzle 2: sentence ───────────────────── -->
+    <section class="er-panel">
+      <h2>🧠 Slot 2 — Bouw de zin</h2>
+      <p style="font-size:1.8rem;text-align:center;margin:0.5rem 0">📡 👁️ 🔒 🌍 🚫 🧠 ⚠️ ⏳</p>
+      <p style="text-align:center;color:var(--muted)">Klik de woorden in de juiste volgorde. De emoji's vertellen het verhaal. Klik een gekozen woord om het terug te leggen.</p>
+      <div class="er-words" id="word-bank"></div>
+      <div class="er-sentence" id="sentence" aria-label="Jouw zin"></div>
+      <div style="text-align:center;margin-top:1rem">
+        <button class="er-btn er-btn-secondary" id="clear-btn" type="button">Wis alles</button>
+        <button class="er-btn er-btn-primary" id="sentence-submit" type="button">Controleer zin</button>
+        <p class="er-feedback" id="sentence-feedback"></p>
+        <button class="er-btn er-btn-secondary" id="sentence-hint-btn" type="button" disabled>💡 Hint</button>
+        <p class="er-hint" id="sentence-hint"></p>
+      </div>
+    </section>
+
+    <!-- ── Puzzle 3: ASCII ──────────────────────── -->
+    <section class="er-panel">
+      <h2>📟 Slot 3 — ASCII-code</h2>
+      <div class="er-console" style="text-align:center">114 101 115 99 117 101</div>
+      <div style="text-align:center;margin-top:1rem">
+        <input type="text" id="ascii-input" placeholder="Vertaling" autocomplete="off" />
+        <button class="er-btn er-btn-primary" id="ascii-submit" type="button">Controleer</button>
+        <p class="er-feedback" id="ascii-feedback"></p>
+        <button class="er-btn er-btn-secondary" id="ascii-hint-btn" type="button" disabled>💡 Hint</button>
+        <p class="er-hint" id="ascii-hint"></p>
+      </div>
+    </section>
+
+    <button class="er-btn er-btn-primary" id="destroy-btn" type="button" disabled style="margin-top:1.5rem;font-size:1.15rem">
+      💥 Activeer zelfvernietiging (0/3 sloten open)
+    </button>
+  </main>
+
+  <audio id="er-audio-correct" src="../assets/audio/correct.mp3" preload="auto"></audio>
+  <audio id="er-audio-error" src="../assets/audio/error.mp3" preload="auto"></audio>
+
+  <script src="../js/game.js"></script>
+  <script>
+    if (ER.guard(6, "../")) {
+      ER.initHUD(6, "../");
+      ER.offerSkipBanner(6, "../finale.html");
+
+      const solved = { qr: false, sentence: false, ascii: false };
+      const destroyBtn = document.getElementById("destroy-btn");
+
+      function refreshDestroy() {
+        const n = Object.values(solved).filter(Boolean).length;
+        destroyBtn.textContent = "💥 Activeer zelfvernietiging (" + n + "/3 sloten open)";
+        destroyBtn.disabled = n < 3;
+      }
+      destroyBtn.addEventListener("click", () => {
+        ER.completeLevel(6);
+        window.location.href = "../finale.html";
+      });
+
+      // ── Slot 1: QR ──
+      ER.wirePuzzle({
+        id: "l6a",
+        inputEl: "qr-input", submitEl: "qr-submit", feedbackEl: "qr-feedback",
+        hintBtn: "qr-hint-btn", hintEl: "qr-hint",
+        hintText: "Scan de QR-code met een telefoon. De code bestaat uit 4 cijfers.",
+        onSuccess: () => { solved.qr = true; disableSlot("qr-input", "qr-submit"); refreshDestroy(); }
+      });
+
+      // ── Slot 2: sentence builder ──
+      const bank = document.getElementById("word-bank");
+      const sentenceEl = document.getElementById("sentence");
+      const words = ["tijd","de","mensheid","vergrendeld","bewust","signaal","het","de","van",
+                     "wordt","dringt","niet","gevaar","is","wereld","de","gezien"];
+      // Shuffle so the layout doesn't accidentally hint at the order
+      words.sort(() => Math.random() - 0.5);
+
+      words.forEach(w => {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "er-word";
+        tile.textContent = w;
+        tile.addEventListener("click", () => {
+          if (tile.disabled) return;
+          tile.disabled = true;
+          const chosen = document.createElement("button");
+          chosen.type = "button";
+          chosen.className = "er-word";
+          chosen.textContent = w;
+          chosen.addEventListener("click", () => { chosen.remove(); tile.disabled = false; });
+          sentenceEl.appendChild(chosen);
+        });
+        bank.appendChild(tile);
+      });
+
+      document.getElementById("clear-btn").addEventListener("click", () => {
+        sentenceEl.innerHTML = "";
+        bank.querySelectorAll(".er-word").forEach(t => { t.disabled = false; });
+      });
+
+      ER.wirePuzzle({
+        id: "l6b",
+        submitEl: "sentence-submit", feedbackEl: "sentence-feedback",
+        hintBtn: "sentence-hint-btn", hintEl: "sentence-hint",
+        hintText: "Volg de emoji's: 📡 het signaal... 👁️ wordt gezien... 🔒🌍 de wereld is vergrendeld... De zin bestaat uit 17 woorden en eindigt met „de tijd dringt".",
+        getValue: () => Array.from(sentenceEl.children).map(el => el.textContent).join(" "),
+        onSuccess: () => {
+          solved.sentence = true;
+          document.getElementById("sentence-submit").disabled = true;
+          document.getElementById("clear-btn").disabled = true;
+          refreshDestroy();
+        }
+      });
+
+      // ── Slot 3: ASCII ──
+      ER.wirePuzzle({
+        id: "l6c",
+        inputEl: "ascii-input", submitEl: "ascii-submit", feedbackEl: "ascii-feedback",
+        hintBtn: "ascii-hint-btn", hintEl: "ascii-hint",
+        hintText: "Elk getal is een ASCII-teken in decimalen: 114 = r, 101 = e... Gebruik een ASCII-tabel. Het antwoord is één Engels woord.",
+        onSuccess: () => { solved.ascii = true; disableSlot("ascii-input", "ascii-submit"); refreshDestroy(); }
+      });
+
+      function disableSlot(inputId, btnId) {
+        document.getElementById(inputId).disabled = true;
+        document.getElementById(btnId).disabled = true;
+      }
+
+      refreshDestroy();
+    }
+  </script>
+</body>
+</html>

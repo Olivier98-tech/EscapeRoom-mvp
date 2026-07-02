@@ -1,0 +1,356 @@
+/* ============================================================
+   ESCAPE ROOM ENGINE — "Red de Mensheid van de Kwaadaardige Code"
+   Shared logic for all levels:
+   - Global countdown timer (configurable via admin.html)
+   - Progress tracking + level gating (no URL skipping)
+   - Answer checking via salted hashes (no plaintext answers in source)
+   - Persistent lockouts (survive page refresh)
+   - Hint system (unlocks after failed attempts)
+   - Sound on/off toggle
+   - Facilitator skip support (via admin portal)
+   ============================================================ */
+
+const ER = (() => {
+  "use strict";
+
+  // ---------- Storage keys ----------
+  const K = {
+    config:   "er_config",     // { durationMin, extraMs }
+    start:    "er_start",      // timestamp (ms) when game started
+    progress: "er_progress",   // array of completed level numbers
+    sound:    "er_sound",      // "on" | "off"
+    fails:    "er_fails_",     // + level id → number of wrong attempts
+    lock:     "er_lock_"       // + level id → timestamp until which input is locked
+  };
+
+  const TOTAL_LEVELS = 6;
+  const PUZZLE_IDS = ["l1", "l2", "l3", "l4", "l5", "l6a", "l6b", "l6c"];
+
+  const LOCKOUT_SECONDS = 45;      // penalty after a wrong answer (was 5 min!)
+  const HINT_AFTER_FAILS = 2;      // hint unlocks after this many wrong attempts
+
+  // ---------- Answer hashes (salted djb2 — answers never appear in source) ----------
+  const SALT = "EC2150:";
+  const HASHES = {
+    l1:  "b8376ff8",
+    l2:  "49511f1e",
+    l3:  "34ffa805",
+    l4:  "b83ac99a",
+    l5:  "51f29ef4",
+    l6a: "b838a432",
+    l6b: "72a5bf96",
+    l6c: "3f613188",
+    pin: "b83a4179"
+  };
+
+  function hash(str) {
+    const s = SALT + str;
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) {
+      h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+    }
+    return h.toString(16);
+  }
+
+  function normalize(str) {
+    return String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
+  }
+
+  // ---------- Storage helpers ----------
+  const store = {
+    get(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch { return fallback; }
+    },
+    set(key, val) { localStorage.setItem(key, JSON.stringify(val)); },
+    del(key) { localStorage.removeItem(key); }
+  };
+
+  // ---------- Config / game state ----------
+  function getConfig() {
+    return store.get(K.config, { durationMin: 60, extraMs: 0 });
+  }
+  function setConfig(cfg) { store.set(K.config, cfg); }
+
+  function startGame() {
+    store.set(K.start, Date.now());
+    store.set(K.progress, []);
+    // clear per-level state
+    PUZZLE_IDS.forEach(id => {
+      store.del(K.fails + id);
+      store.del(K.lock + id);
+    });
+    const cfg = getConfig();
+    cfg.extraMs = 0;
+    setConfig(cfg);
+  }
+
+  function resetGame() {
+    store.del(K.start);
+    store.del(K.progress);
+    PUZZLE_IDS.forEach(id => {
+      store.del(K.fails + id);
+      store.del(K.lock + id);
+    });
+  }
+
+  function isStarted() { return store.get(K.start, null) !== null; }
+
+  function remainingMs() {
+    const start = store.get(K.start, null);
+    if (start === null) return null;
+    const cfg = getConfig();
+    const end = start + cfg.durationMin * 60000 + (cfg.extraMs || 0);
+    return end - Date.now();
+  }
+
+  function addTime(minutes) {
+    const cfg = getConfig();
+    cfg.extraMs = (cfg.extraMs || 0) + minutes * 60000;
+    setConfig(cfg);
+  }
+
+  // ---------- Progress ----------
+  function getProgress() { return store.get(K.progress, []); }
+
+  function completeLevel(n) {
+    const p = getProgress();
+    if (!p.includes(n)) p.push(n);
+    store.set(K.progress, p);
+  }
+
+  function isComplete(n) { return getProgress().includes(n); }
+
+  /** Redirect players who try to skip ahead or haven't started. */
+  function guard(level, basePath) {
+    if (!isStarted()) {
+      window.location.href = basePath + "index.html";
+      return false;
+    }
+    for (let i = 1; i < level; i++) {
+      if (!isComplete(i)) {
+        window.location.href = basePath + "levels/level" + i + ".html";
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // ---------- Answers ----------
+  function check(id, input) {
+    return hash(normalize(input)) === HASHES[id];
+  }
+  function checkRaw(id, alreadyNormalized) {
+    return hash(alreadyNormalized) === HASHES[id];
+  }
+
+  // ---------- Fails / lockout / hints ----------
+  function registerFail(id) {
+    const fails = store.get(K.fails + id, 0) + 1;
+    store.set(K.fails + id, fails);
+    store.set(K.lock + id, Date.now() + LOCKOUT_SECONDS * 1000);
+    return { fails, hintUnlocked: fails >= HINT_AFTER_FAILS };
+  }
+
+  function getFails(id) { return store.get(K.fails + id, 0); }
+
+  function lockedForMs(id) {
+    const until = store.get(K.lock + id, 0);
+    return Math.max(0, until - Date.now());
+  }
+
+  function clearLocks() {
+    PUZZLE_IDS.forEach(id => store.del(K.lock + id));
+  }
+
+  // ---------- Sound ----------
+  function soundOn() { return store.get(K.sound, "on") === "on"; }
+  function toggleSound() {
+    store.set(K.sound, soundOn() ? "off" : "on");
+    syncSoundButton();
+    if (!soundOn()) {
+      document.querySelectorAll("audio").forEach(a => { a.pause(); });
+    }
+    return soundOn();
+  }
+  function play(elId) {
+    if (!soundOn()) return;
+    const el = document.getElementById(elId);
+    if (el) { el.currentTime = 0; el.play().catch(() => {}); }
+  }
+  function syncSoundButton() {
+    const btn = document.getElementById("er-sound-btn");
+    if (btn) {
+      btn.textContent = soundOn() ? "🔊" : "🔇";
+      btn.title = soundOn() ? "Geluid uitzetten" : "Geluid aanzetten";
+      btn.setAttribute("aria-label", btn.title);
+    }
+  }
+
+  // ---------- HUD (mission status bar on every level page) ----------
+  let hudLevel = null;
+
+  function initHUD(level, basePath) {
+    hudLevel = level;
+    const hud = document.createElement("div");
+    hud.className = "er-hud";
+    hud.innerHTML =
+      '<span class="er-hud-item er-hud-mission">MISSIE 2150</span>' +
+      '<span class="er-hud-item">LEVEL <strong>' + level + "</strong>/" + TOTAL_LEVELS + "</span>" +
+      '<span class="er-hud-item er-hud-timer" id="er-timer">--:--</span>' +
+      '<button class="er-hud-btn" id="er-sound-btn" type="button">🔊</button>';
+    document.body.prepend(hud);
+    document.getElementById("er-sound-btn").addEventListener("click", toggleSound);
+    syncSoundButton();
+    tickTimer();
+    setInterval(tickTimer, 1000);
+  }
+
+  function fmt(ms) {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(total / 60);
+    const s = String(total % 60).padStart(2, "0");
+    return m + ":" + s;
+  }
+
+  function tickTimer() {
+    const el = document.getElementById("er-timer");
+    if (!el) return;
+    const rem = remainingMs();
+    if (rem === null) { el.textContent = "--:--"; return; }
+    if (rem <= 0) {
+      el.textContent = "TIJD OM";
+      el.classList.add("er-timer-expired");
+      document.body.classList.add("er-time-up");
+    } else {
+      el.textContent = fmt(rem);
+      el.classList.toggle("er-timer-warning", rem < 5 * 60000);
+    }
+  }
+
+  // ---------- Standard puzzle wiring ----------
+  /**
+   * Wires a puzzle: submit button/enter, feedback, lockout countdown, hint button.
+   * opts: { id, level, inputEl, submitEl, feedbackEl, hintText, hintEl, hintBtn,
+   *         getValue?, onSuccess }
+   */
+  function wirePuzzle(opts) {
+    const feedback = document.getElementById(opts.feedbackEl);
+    const submit = document.getElementById(opts.submitEl);
+    const input = opts.inputEl ? document.getElementById(opts.inputEl) : null;
+    const hintBtn = opts.hintBtn ? document.getElementById(opts.hintBtn) : null;
+    const hintEl = opts.hintEl ? document.getElementById(opts.hintEl) : null;
+    let lockInterval = null;
+
+    function refreshHint() {
+      if (!hintBtn) return;
+      const unlocked = getFails(opts.id) >= HINT_AFTER_FAILS;
+      hintBtn.disabled = !unlocked;
+      hintBtn.textContent = unlocked
+        ? "💡 Toon hint"
+        : "💡 Hint (na " + HINT_AFTER_FAILS + " foute pogingen)";
+    }
+
+    function refreshLock() {
+      const ms = lockedForMs(opts.id);
+      if (ms > 0) {
+        submit.disabled = true;
+        feedback.className = "er-feedback er-locked";
+        feedback.textContent = "⛔ Systeem geblokkeerd — wacht " + fmt(ms);
+        if (!lockInterval) {
+          lockInterval = setInterval(() => {
+            const left = lockedForMs(opts.id);
+            if (left <= 0) {
+              clearInterval(lockInterval);
+              lockInterval = null;
+              submit.disabled = false;
+              feedback.textContent = "🔁 Probeer opnieuw.";
+              feedback.className = "er-feedback";
+            } else {
+              feedback.textContent = "⛔ Systeem geblokkeerd — wacht " + fmt(left);
+            }
+          }, 500);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    function attempt() {
+      if (refreshLock()) return;
+      const value = opts.getValue ? opts.getValue() : (input ? input.value : "");
+      if (check(opts.id, value)) {
+        play("er-audio-correct");
+        feedback.className = "er-feedback er-success";
+        feedback.textContent = "✅ Correct!";
+        opts.onSuccess();
+      } else {
+        play("er-audio-error");
+        const { fails, hintUnlocked } = registerFail(opts.id);
+        feedback.className = "er-feedback er-locked";
+        refreshLock();
+        refreshHint();
+        if (hintUnlocked && hintBtn) {
+          feedback.textContent += " — 💡 hint beschikbaar (poging " + fails + ")";
+        }
+      }
+    }
+
+    submit.addEventListener("click", attempt);
+    if (input) {
+      input.addEventListener("keydown", e => { if (e.key === "Enter") attempt(); });
+    }
+    if (hintBtn && hintEl) {
+      hintBtn.addEventListener("click", () => {
+        hintEl.textContent = opts.hintText;
+        hintEl.classList.add("er-hint-visible");
+      });
+    }
+    refreshHint();
+    refreshLock();
+  }
+
+  /** Shows the story overlay after completing a level. */
+  function showSuccess(level, title, story, nextHref) {
+    completeLevel(level);
+    const overlay = document.createElement("div");
+    overlay.className = "er-overlay";
+    overlay.innerHTML =
+      '<div class="er-overlay-card">' +
+      "<h2>" + title + "</h2>" +
+      "<p>" + story + "</p>" +
+      '<a class="er-btn er-btn-primary" href="' + nextHref + '">Volgende ▸</a>' +
+      "</div>";
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add("er-overlay-visible"));
+  }
+
+  /** If a facilitator already marked this level complete (skip), offer the shortcut. */
+  function offerSkipBanner(level, nextHref) {
+    if (!isComplete(level)) return;
+    const bar = document.createElement("div");
+    bar.className = "er-skip-banner";
+    bar.innerHTML =
+      "✔ Dit level is al voltooid (of vrijgegeven door de spelleider). " +
+      '<a href="' + nextHref + '">Ga direct verder ▸</a>';
+    const hud = document.querySelector(".er-hud");
+    (hud || document.body).insertAdjacentElement(hud ? "afterend" : "afterbegin", bar);
+  }
+
+  // ---------- Admin ----------
+  function checkPin(pin) { return hash(normalize(pin)) === HASHES.pin; }
+
+  return {
+    TOTAL_LEVELS, HINT_AFTER_FAILS, LOCKOUT_SECONDS,
+    hash, normalize,
+    getConfig, setConfig, startGame, resetGame, isStarted,
+    remainingMs, addTime, fmt,
+    getProgress, completeLevel, isComplete, guard,
+    check, checkRaw, registerFail, getFails, lockedForMs, clearLocks,
+    soundOn, toggleSound, play,
+    initHUD, wirePuzzle, showSuccess, offerSkipBanner,
+    checkPin
+  };
+})();

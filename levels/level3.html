@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 3: Hexa Lockdown</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <main class="er-page">
+    <h1>Level 3: Hexa Lockdown</h1>
+    <p>De AI heeft een cruciaal commando versleuteld met hexadecimale code.<br>Ontcijfer de code en voer het correcte antwoord in.</p>
+
+    <div class="er-console" style="display:inline-block;border-style:dashed;letter-spacing:0.1em">
+      0x53 0x41 0x56 0x45 0x5F 0x54 0x48 0x45 0x5F 0x57 0x4F 0x52 0x4C 0x44
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <input type="text" id="code-input" placeholder="ANTWOORD_MET_UNDERSCORES" autocomplete="off" style="width:min(100%,340px);text-transform:uppercase" />
+    </div>
+    <div style="margin-top:1rem">
+      <button class="er-btn er-btn-primary" id="submit-btn" type="button">Controleer</button>
+    </div>
+
+    <p class="er-feedback" id="feedback"></p>
+    <button class="er-btn er-btn-secondary" id="hint-btn" type="button" disabled>💡 Hint</button>
+    <p class="er-hint" id="hint-box"></p>
+  </main>
+
+  <audio id="er-audio-correct" src="../assets/audio/correct.mp3" preload="auto"></audio>
+  <audio id="er-audio-error" src="../assets/audio/error.mp3" preload="auto"></audio>
+
+  <script src="../js/game.js"></script>
+  <script>
+    if (ER.guard(3, "../")) {
+      ER.initHUD(3, "../");
+      ER.offerSkipBanner(3, "level4.html");
+      ER.wirePuzzle({
+        id: "l3",
+        inputEl: "code-input",
+        submitEl: "submit-btn",
+        feedbackEl: "feedback",
+        hintBtn: "hint-btn",
+        hintEl: "hint-box",
+        hintText: "Elk hexadecimaal getal is een ASCII-teken: 0x53 = S, 0x41 = A... Gebruik een ASCII-tabel. 0x5F is een underscore (_). Neem de underscores over in je antwoord.",
+        onSuccess: () => ER.showSuccess(
+          3,
+          "✅ Commando ontcijferd",
+          "Jullie hebben de dataversleuteling van de AI gekraakt! Maar dit is nog niet het einde — voorbij deze deur ligt de AI-controlekamer, beveiligd met een symbolencode. Alleen de scherpste kadetten komen erdoor.",
+          "level4.html"
+        )
+      });
+    }
+  </script>
+</body>
+</html>

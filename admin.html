@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎛 Spelleider Portaal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="er-page">
+    <h1>🎛 Spelleider Portaal</h1>
+
+    <!-- ── PIN gate ── -->
+    <div class="er-panel" id="pin-gate" style="max-width:360px;margin-left:auto;margin-right:auto;text-align:center">
+      <p>Voer de spelleider-PIN in.<br><span style="color:var(--muted);font-size:0.85rem">(Zie docs/FACILITATOR-GUIDE.md)</span></p>
+      <input type="password" id="pin-input" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off" style="text-align:center" />
+      <div style="margin-top:1rem">
+        <button class="er-btn er-btn-primary" id="pin-btn" type="button">Inloggen</button>
+      </div>
+      <p class="er-feedback" id="pin-feedback"></p>
+    </div>
+
+    <!-- ── Dashboard ── -->
+    <div id="dashboard" style="display:none">
+      <div class="er-admin-grid">
+
+        <section class="er-panel">
+          <h2>⏱ Timer</h2>
+          <p id="timer-status" style="font-size:1.4rem;color:var(--terminal)">--:--</p>
+          <label for="duration-input">Duur (minuten):</label>
+          <input type="number" id="duration-input" min="5" max="240" step="5" style="width:6rem" />
+          <div style="margin-top:0.8rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="er-btn er-btn-secondary" id="save-duration" type="button">Opslaan</button>
+            <button class="er-btn er-btn-secondary" id="add-5" type="button">+5 min</button>
+            <button class="er-btn er-btn-secondary" id="add-10" type="button">+10 min</button>
+          </div>
+          <p style="color:var(--muted);font-size:0.85rem">
+            De duur geldt vanaf de start op de introdpagina. Extra tijd werkt direct, ook tijdens het spel.
+          </p>
+        </section>
+
+        <section class="er-panel">
+          <h2>🎮 Spelbeheer</h2>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="er-btn er-btn-primary" id="start-now" type="button">▶ Start missie nu</button>
+            <button class="er-btn er-btn-secondary" id="reset-game" type="button">↺ Reset alles</button>
+            <button class="er-btn er-btn-secondary" id="clear-locks" type="button">🔓 Wis alle blokkades</button>
+          </div>
+          <p style="color:var(--muted);font-size:0.85rem">
+            „Wis blokkades" heft actieve wachttijden na foute antwoorden op — handig als een groep vastzit.
+          </p>
+        </section>
+
+        <section class="er-panel" style="grid-column:1/-1">
+          <h2>📊 Voortgang &amp; level overslaan</h2>
+          <p style="color:var(--muted);font-size:0.85rem">
+            Komt een groep er echt niet uit? Markeer het level als voltooid — de spelers zien dan een
+            „ga direct verder"-melding op de levelpagina (of na een refresh).
+          </p>
+          <div id="progress-list"></div>
+        </section>
+
+      </div>
+
+      <p style="margin-top:2rem"><a href="index.html">← Terug naar de intro</a></p>
+    </div>
+  </main>
+
+  <script src="js/game.js"></script>
+  <script>
+    (function () {
+      const gate = document.getElementById("pin-gate");
+      const dash = document.getElementById("dashboard");
+
+      function login() {
+        const pin = document.getElementById("pin-input").value;
+        if (ER.checkPin(pin)) {
+          gate.style.display = "none";
+          dash.style.display = "block";
+          render();
+          setInterval(renderTimer, 1000);
+        } else {
+          const fb = document.getElementById("pin-feedback");
+          fb.className = "er-feedback er-locked";
+          fb.textContent = "❌ Onjuiste PIN.";
+        }
+      }
+      document.getElementById("pin-btn").addEventListener("click", login);
+      document.getElementById("pin-input").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+
+      function renderTimer() {
+        const el = document.getElementById("timer-status");
+        const rem = ER.remainingMs();
+        if (rem === null) { el.textContent = "Nog niet gestart"; el.style.color = "var(--muted)"; }
+        else if (rem <= 0) { el.textContent = "⏰ TIJD OM"; el.style.color = "var(--alert)"; }
+        else { el.textContent = ER.fmt(rem) + " resterend"; el.style.color = "var(--terminal)"; }
+      }
+
+      function renderProgress() {
+        const list = document.getElementById("progress-list");
+        list.innerHTML = "";
+        const names = ["De Cijfercode", "De Firewall", "Hexa Lockdown", "Code van de Vier", "Kernel Infiltratie", "De Finale"];
+        for (let i = 1; i <= ER.TOTAL_LEVELS; i++) {
+          const done = ER.isComplete(i);
+          const row = document.createElement("div");
+          row.className = "er-progress-row";
+          row.innerHTML =
+            "<span>Level " + i + " — " + names[i - 1] + "</span>" +
+            (done
+              ? '<span class="er-tag-done">✔ voltooid</span>'
+              : '<button class="er-btn er-btn-secondary" data-skip="' + i + '" type="button">⏭ Sla over</button>');
+          list.appendChild(row);
+        }
+        list.querySelectorAll("[data-skip]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            ER.completeLevel(Number(btn.dataset.skip));
+            renderProgress();
+          });
+        });
+      }
+
+      function render() {
+        document.getElementById("duration-input").value = ER.getConfig().durationMin;
+        renderTimer();
+        renderProgress();
+      }
+
+      document.getElementById("save-duration").addEventListener("click", () => {
+        const v = Math.max(5, Math.min(240, Number(document.getElementById("duration-input").value) || 60));
+        const cfg = ER.getConfig();
+        cfg.durationMin = v;
+        ER.setConfig(cfg);
+        document.getElementById("duration-input").value = v;
+        renderTimer();
+      });
+      document.getElementById("add-5").addEventListener("click", () => { ER.addTime(5); renderTimer(); });
+      document.getElementById("add-10").addEventListener("click", () => { ER.addTime(10); renderTimer(); });
+
+      document.getElementById("start-now").addEventListener("click", () => { ER.startGame(); render(); });
+      document.getElementById("reset-game").addEventListener("click", () => {
+        if (confirm("Weet je zeker dat je alle voortgang en de timer wilt resetten?")) {
+          ER.resetGame(); render();
+        }
+      });
+      document.getElementById("clear-locks").addEventListener("click", () => {
+        ER.clearLocks();
+        alert("Alle blokkades zijn opgeheven.");
+      });
+    })();
+  </script>
+</body>
+</html>

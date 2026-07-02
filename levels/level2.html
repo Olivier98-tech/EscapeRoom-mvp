@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 2: De Firewall</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <main class="er-page">
+    <h1>Level 2: De Firewall</h1>
+
+    <div class="er-panel">
+      <p class="er-prompt" style="color:var(--terminal)">🔐 firewall actief — toegangscommando vereist</p>
+      <p>🧠 De AI heeft haar geheim verborgen in deze onderschepte string:</p>
+      <div class="er-console">Uifsf jt b tfdsfu dpef: WFODPEF</div>
+      <p style="color:var(--muted);margin-bottom:0">
+        Ontsleutel de string en voer het volledige commando in:<br>
+        <code style="color:var(--amber)">unlock_firewall --code=&lt;GEHEIME CODE&gt;</code>
+      </p>
+    </div>
+
+    <input type="text" id="code-input" placeholder="Typ het commando en druk op Enter..." autocomplete="off" style="width:min(100%,480px)" />
+    <div style="margin-top:1rem">
+      <button class="er-btn er-btn-primary" id="submit-btn" type="button">Uitvoeren</button>
+    </div>
+
+    <p class="er-feedback" id="feedback"></p>
+    <button class="er-btn er-btn-secondary" id="hint-btn" type="button" disabled>💡 Hint</button>
+    <p class="er-hint" id="hint-box"></p>
+  </main>
+
+  <audio id="er-audio-correct" src="../assets/audio/correct.mp3" preload="auto"></audio>
+  <audio id="er-audio-error" src="../assets/audio/error.mp3" preload="auto"></audio>
+
+  <script src="../js/game.js"></script>
+  <script>
+    if (ER.guard(2, "../")) {
+      ER.initHUD(2, "../");
+      ER.offerSkipBanner(2, "level3.html");
+      ER.wirePuzzle({
+        id: "l2",
+        inputEl: "code-input",
+        submitEl: "submit-btn",
+        feedbackEl: "feedback",
+        hintBtn: "hint-btn",
+        hintEl: "hint-box",
+        hintText: "Elke letter is één stap verschoven. Schuif elke letter één plek terug in het alfabet (U → T, i → h, ...). De laatste woorden onthullen de geheime code.",
+        onSuccess: () => ER.showSuccess(
+          2,
+          "✅ Firewall gedeactiveerd",
+          "Uitstekend werk, kadet. De firewall is neer — maar diep in het systeem wacht een hexadecimale vergrendeling. Ontcijfer haar en kom nog één stap dichter bij de kern.",
+          "level3.html"
+        )
+      });
+    }
+  </script>
+</body>
+</html>

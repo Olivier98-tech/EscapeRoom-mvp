@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 1: De Cijfercode</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <main class="er-page">
+    <h1>Level 1: De Cijfercode</h1>
+    <p>De AI heeft haar toegangscode versleuteld in deze QR-transmissie.<br>Kraak de 4-cijferige code.</p>
+
+    <img class="er-img" src="../assets/images/qr-level1.png" alt="Versleutelde QR-transmissie" />
+
+    <div>
+      <input type="text" id="code-input" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" style="width:8rem;text-align:center;font-size:1.5rem;letter-spacing:0.4rem" />
+      <button class="er-btn er-btn-primary" id="submit-btn" type="button">Bevestigen</button>
+    </div>
+
+    <p class="er-feedback" id="feedback"></p>
+    <button class="er-btn er-btn-secondary" id="hint-btn" type="button" disabled>💡 Hint</button>
+    <p class="er-hint" id="hint-box"></p>
+  </main>
+
+  <audio id="er-audio-correct" src="../assets/audio/correct.mp3" preload="auto"></audio>
+  <audio id="er-audio-error" src="../assets/audio/error.mp3" preload="auto"></audio>
+
+  <script src="../js/game.js"></script>
+  <script>
+    if (ER.guard(1, "../")) {
+      ER.initHUD(1, "../");
+      ER.offerSkipBanner(1, "level2.html");
+      ER.wirePuzzle({
+        id: "l1",
+        inputEl: "code-input",
+        submitEl: "submit-btn",
+        feedbackEl: "feedback",
+        hintBtn: "hint-btn",
+        hintEl: "hint-box",
+        hintText: "Scan de QR-code met een telefoon — de transmissie bevat meer dan je denkt. Zoek de vier cijfers in het resultaat.",
+        onSuccess: () => ER.showSuccess(
+          1,
+          "✅ Toegangscode geaccepteerd",
+          "Goed gedaan, kadet. De eerste deur opent zich — maar de AI heeft de firewall versterkt. Jullie volgende missie: vind het juiste commando om de firewall te omzeilen.",
+          "level2.html"
+        )
+      });
+    }
+  </script>
+</body>
+</html>
