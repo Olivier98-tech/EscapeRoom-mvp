@@ -26,8 +26,19 @@ const ER = (() => {
   const TOTAL_LEVELS = 6;
   const PUZZLE_IDS = ["l1", "l2", "l3", "l4", "l5", "l6a", "l6b", "l6c"];
 
-  const LOCKOUT_SECONDS = 45;      // penalty after a wrong answer (was 5 min!)
+  // Lockout policy: first 3 wrong attempts are free (no wait). From the 4th
+  // wrong attempt on, the wait grows 10s per attempt (10, 20, 30, ...) up to a
+  // 60s maximum, then stays at 60s each further attempt.
+  const FREE_ATTEMPTS = 3;         // no lockout for the first N wrong answers
+  const LOCKOUT_STEP_SECONDS = 10; // added wait per attempt past the free ones
+  const LOCKOUT_MAX_SECONDS = 60;  // hard cap on the wait (1 minute)
   const HINT_AFTER_FAILS = 2;      // hint unlocks after this many wrong attempts
+
+  /** Wait (seconds) to apply after the given cumulative number of wrong attempts. */
+  function lockoutSecondsFor(fails) {
+    if (fails <= FREE_ATTEMPTS) return 0;
+    return Math.min((fails - FREE_ATTEMPTS) * LOCKOUT_STEP_SECONDS, LOCKOUT_MAX_SECONDS);
+  }
 
   // ---------- Answer hashes (salted djb2 — answers never appear in source) ----------
   const SALT = "EC2150:";
@@ -150,8 +161,9 @@ const ER = (() => {
   function registerFail(id) {
     const fails = store.get(K.fails + id, 0) + 1;
     store.set(K.fails + id, fails);
-    store.set(K.lock + id, Date.now() + LOCKOUT_SECONDS * 1000);
-    return { fails, hintUnlocked: fails >= HINT_AFTER_FAILS };
+    const secs = lockoutSecondsFor(fails);
+    if (secs > 0) store.set(K.lock + id, Date.now() + secs * 1000);
+    return { fails, hintUnlocked: fails >= HINT_AFTER_FAILS, lockSeconds: secs };
   }
 
   function getFails(id) { return store.get(K.fails + id, 0); }
@@ -289,9 +301,15 @@ const ER = (() => {
       } else {
         play("er-audio-error");
         const { fails, hintUnlocked } = registerFail(opts.id);
-        feedback.className = "er-feedback er-locked";
-        refreshLock();
         refreshHint();
+        if (!refreshLock()) {
+          // Still within the free attempts — no lockout, just try again.
+          const left = Math.max(0, FREE_ATTEMPTS - fails);
+          feedback.className = "er-feedback er-error";
+          feedback.textContent = left > 0
+            ? "❌ Onjuist. Nog " + left + " poging" + (left === 1 ? "" : "en") + " zonder wachttijd."
+            : "❌ Onjuist. Probeer opnieuw.";
+        }
         if (hintUnlocked && hintBtn) {
           feedback.textContent += " — 💡 hint beschikbaar (poging " + fails + ")";
         }
@@ -343,7 +361,8 @@ const ER = (() => {
   function checkPin(pin) { return hash(normalize(pin)) === HASHES.pin; }
 
   return {
-    TOTAL_LEVELS, HINT_AFTER_FAILS, LOCKOUT_SECONDS,
+    TOTAL_LEVELS, HINT_AFTER_FAILS,
+    FREE_ATTEMPTS, LOCKOUT_STEP_SECONDS, LOCKOUT_MAX_SECONDS, lockoutSecondsFor,
     hash, normalize,
     getConfig, setConfig, startGame, resetGame, isStarted,
     remainingMs, addTime, fmt,

@@ -38,7 +38,7 @@ en [`docs/PREPARATION-CHECKLIST.md`](docs/PREPARATION-CHECKLIST.md) (klaarzetten
 - **Globale afteltimer** — zichtbaar op elk level, instelbaar (5–240 min) via het admin portaal, met +5/+10 min tijdens het spel
 - **Voortgangsbeveiliging** — levels zijn niet via de URL over te slaan; voortgang overleeft een refresh
 - **Hint-systeem** — na 2 foute pogingen per puzzel wordt een hint beschikbaar
-- **Eerlijke lockouts** — 45 sec na een fout antwoord, opgeslagen in localStorage (refresh omzeilt niets)
+- **Eerlijke lockouts** — de eerste 3 pogingen zijn vrij; daarna een oplopende wachttijd (10, 20, 30… sec) tot maximaal 1 minuut, opgeslagen in localStorage (refresh omzeilt niets)
 - **Geheime antwoorden** — antwoorden staan alleen als hash in de code; view-source verklapt niets
 - **Admin portaal** — timer, reset, blokkades wissen en levels overslaan voor vastgelopen teams
 - **Geluid aan/uit** — toggle in de HUD, voorkeur wordt onthouden
@@ -50,7 +50,7 @@ en [`docs/PREPARATION-CHECKLIST.md`](docs/PREPARATION-CHECKLIST.md) (klaarzetten
    controleerde op `ENCODE`. Gefixt.
 2. **Level 6**: dubbele/conflicterende scriptblokken verwijderd; de zin-puzzel vereist
    nu weer de volledige zin (een debug-shortcut accepteerde slechts één woord).
-3. **Lockouts**: 5 minuten → 45 seconden, én persistent (een refresh reset ze niet meer).
+3. **Lockouts**: eerlijker gemaakt — de eerste 3 pogingen zonder wachttijd, daarna oplopend (10s per poging) tot max 60s, én persistent (een refresh reset ze niet meer).
 4. **Audio**: autoplay werkt niet in moderne browsers; audio start nu via knoppen met
    nette fallbacks.
 5. **Structuur**: alles in één mappenstructuur, gedeelde CSS/JS, geen dubbele bestanden,
