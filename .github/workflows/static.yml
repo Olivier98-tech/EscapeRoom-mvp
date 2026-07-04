@@ -15,6 +15,12 @@ permissions:
   pages: write
   id-token: write
 
+# Silence the "Node 20 is deprecated" warnings: GitHub's Pages actions still
+# declare Node 20 internally, but the runner already runs them on Node 24.
+# This flag makes that explicit until GitHub ships Node-24 versions.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -27,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
