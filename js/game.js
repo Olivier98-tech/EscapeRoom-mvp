@@ -339,6 +339,7 @@ const ER = (() => {
         play("er-audio-error");
         const { fails, hintUnlocked } = registerFail(opts.id);
         refreshHint();
+        const wrongMsg = opts.onWrong ? (opts.onWrong(value) || "") : "";
         if (!refreshLock()) {
           // Still within the free attempts — no lockout, just try again.
           const left = Math.max(0, FREE_ATTEMPTS - fails);
@@ -347,6 +348,7 @@ const ER = (() => {
             ? "❌ Onjuist. Nog " + left + " poging" + (left === 1 ? "" : "en") + " zonder wachttijd."
             : "❌ Onjuist. Probeer opnieuw.";
         }
+        if (wrongMsg) feedback.textContent += " — " + wrongMsg;
         if (hintUnlocked && hintBtn) {
           feedback.textContent += " — 💡 hint beschikbaar (poging " + fails + ")";
         }

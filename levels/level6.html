@@ -128,6 +128,11 @@
         hintBtn: "sentence-hint-btn", hintEl: "sentence-hint",
         hintText: "Volg de emoji's: 📡 het signaal... 👁️ wordt gezien... 🔒🌍 de wereld is vergrendeld... De zin bestaat uit 17 woorden en eindigt met „de tijd dringt”.",
         getValue: () => Array.from(sentenceEl.children).map(el => el.textContent).join(" "),
+        onWrong: (val) => {
+          const n = val.trim() ? val.trim().split(/\s+/).length : 0;
+          if (n < 17) return "plaats alle 17 woorden (" + n + "/17)";
+          return "alle 17 woorden staan er — alleen de volgorde klopt nog niet";
+        },
         onSuccess: () => {
           solved.sentence = true;
           document.getElementById("sentence-submit").disabled = true;
