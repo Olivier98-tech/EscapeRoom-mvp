@@ -1,4 +1,4 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Deploy static content to GitHub Pages
 name: Deploy static content to Pages
 
 on:
@@ -22,11 +22,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Build job: prepares and uploads the Pages artifact exactly once.
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,6 +35,15 @@ jobs:
         with:
           # Upload entire repository
           path: '.'
+
+  # Deploy job: separate so re-running it never re-uploads a second artifact.
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
