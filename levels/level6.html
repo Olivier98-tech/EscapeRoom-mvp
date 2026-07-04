@@ -27,8 +27,8 @@
     <!-- ── Puzzle 2: sentence ───────────────────── -->
     <section class="er-panel">
       <h2>🧠 Slot 2 — Bouw de zin</h2>
-      <p style="font-size:1.8rem;text-align:center;margin:0.5rem 0">📡 👁️ 🔒 🌍 🚫 🧠 ⚠️ ⏳</p>
-      <p style="text-align:center;color:var(--muted)">Klik de woorden in de juiste volgorde. De emoji's vertellen het verhaal. Klik een gekozen woord om het terug te leggen.</p>
+      <p style="font-size:1.8rem;text-align:center;margin:0.5rem 0">📡 👁️ 🌍 🔒 🚫 🧠 ⚠️ ⏳</p>
+      <p style="text-align:center;color:var(--muted)">Klik de woorden in de juiste volgorde. Elk symbool hierboven staat voor één kernwoord, in volgorde. Klik een gekozen woord om het terug te leggen.</p>
       <div class="er-words" id="word-bank"></div>
       <div class="er-sentence" id="sentence" aria-label="Jouw zin"></div>
       <div style="text-align:center;margin-top:1rem">
@@ -126,7 +126,7 @@
         id: "l6b",
         submitEl: "sentence-submit", feedbackEl: "sentence-feedback",
         hintBtn: "sentence-hint-btn", hintEl: "sentence-hint",
-        hintText: "Volg de emoji's: 📡 het signaal... 👁️ wordt gezien... 🔒🌍 de wereld is vergrendeld... De zin bestaat uit 17 woorden en eindigt met „de tijd dringt”.",
+        hintText: "Volg de emoji's: 📡 het signaal... 👁️ wordt gezien... 🌍🔒 de wereld is vergrendeld... De zin bestaat uit 17 woorden en eindigt met „de tijd dringt”.",
         getValue: () => Array.from(sentenceEl.children).map(el => el.textContent).join(" "),
         onWrong: (val) => {
           const n = val.trim() ? val.trim().split(/\s+/).length : 0;
