@@ -301,4 +301,6 @@ img.er-img { max-width: min(100%, 380px); border-radius: 8px; display: block; ma
 .er-tag-open { color: var(--muted); }
 
 @media (max-width: 520px) {
-  .er-hud { gap: 0.7rem; font-size: 0.75rem
+  .er-hud { gap: 0.7rem; font-size: 0.75rem; }
+  .er-panel { padding: 1rem; }
+}

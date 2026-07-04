@@ -126,7 +126,7 @@
         id: "l6b",
         submitEl: "sentence-submit", feedbackEl: "sentence-feedback",
         hintBtn: "sentence-hint-btn", hintEl: "sentence-hint",
-        hintText: "Volg de emoji's: 📡 het signaal... 👁️ wordt gezien... 🔒🌍 de wereld is vergrendeld... De zin bestaat uit 17 woorden en eindigt met „de tijd dringt".",
+        hintText: "Volg de emoji's: 📡 het signaal... 👁️ wordt gezien... 🔒🌍 de wereld is vergrendeld... De zin bestaat uit 17 woorden en eindigt met „de tijd dringt”.",
         getValue: () => Array.from(sentenceEl.children).map(el => el.textContent).join(" "),
         onSuccess: () => {
           solved.sentence = true;
