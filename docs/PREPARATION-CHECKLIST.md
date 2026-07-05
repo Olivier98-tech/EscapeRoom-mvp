@@ -8,19 +8,17 @@ Print deze pagina en vink af tijdens het klaarzetten.
 - [ ] Kies: online spelen via GitHub Pages, of lokaal (map openen en `index.html` starten)
 - [ ] Regel per team één laptop of tablet **met werkende speakers**
 - [ ] Regel per team minimaal één telefoon met QR-scanner (voor level 1 en 6)
-- [ ] Print de fysieke aanwijzing voor **level 4** (zie hieronder)
+- [ ] (Optioneel) Fysieke aanwijzing voor **level 4** — niet meer nodig, de puzzel is op het scherm oplosbaar (zie hieronder)
 
-## 🖨 Fysieke aanwijzing level 4 (verplicht!)
+## 🖨 Fysieke aanwijzing level 4 (optioneel)
 
-Level 4 vraagt om een symbolencode die spelers **in de ruimte** moeten vinden.
-Maak een briefje/poster met deze vier symbolen in deze volgorde en verstop het:
+Level 4 is nu **volledig op het scherm** oplosbaar: de log geeft vier logica-
+aanwijzingen waaruit spelers de volgorde **◉ ⚪ ▲ ⚫** afleiden. Printen hoeft dus
+niet meer.
 
-> **◉ ⚪ ▲ ⚫**
-
-Ideeën om te verstoppen: onder een stoel geplakt, achterop een deur, in een boek,
-als „defect"-sticker op een apparaat. Tip: nummer de symbolen (1e, 2e, 3e, 4e) als
-je het makkelijker wilt maken, of verstop de vier symbolen los op vier plekken
-voor extra uitdaging.
+Wil je er tóch een fysieke zoektocht van maken? Verstop dan een briefje met
+**◉ ⚪ ▲ ⚫** in de ruimte en laat de on-screen log weg (of gebruik hem als
+extra hint).
 
 ## 🗓 Op de dag zelf — per apparaat
 
@@ -29,7 +27,7 @@ voor extra uitdaging.
 - [ ] Open `admin.html` → log in (PIN staat in de spelleider-gids) → **Reset alles**
 - [ ] Stel de gewenste speelduur in (standaard 60 min)
 - [ ] Sluit het admin-tabblad — laat alleen de intropagina open staan
-- [ ] Controleer dat de fysieke aanwijzing van level 4 verstopt ligt
+- [ ] (Alleen als je de fysieke variant gebruikt) Controleer dat het level 4-briefje verstopt ligt
 
 ## 🎬 Briefing voor de spelers (voorlezen)
 
@@ -52,4 +50,4 @@ voor extra uitdaging.
 
 - [ ] Noteer de eindtijd (staat op de finale-pagina) voor een eventueel klassement
 - [ ] Admin portaal → **Reset alles** voor de volgende groep
-- [ ] Verstop de fysieke aanwijzing van level 4 opnieuw
+- [ ] (Alleen fysieke variant) Verstop het level 4-briefje opnieuw

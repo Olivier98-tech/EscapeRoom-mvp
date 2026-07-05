@@ -378,7 +378,7 @@ const ER = (() => {
     3: { title: "Level 3 — Hexa Lockdown",
          text: "De firewall ligt plat. Dieper in het systeem stuiten jullie op een hexadecimale vergrendeling. Vertaal de code terug naar leesbare tekst en kom één stap dichter bij de kern." },
     4: { title: "Level 4 — Code van de Vier",
-         text: "De dataversleuteling is gekraakt. Voorbij deze deur ligt de AI-controlekamer, beveiligd met een symbolencode. De juiste volgorde vinden jullie op een fysieke aanwijzing in de ruimte. 🚨 Alarmfase actief." },
+         text: "De dataversleuteling is gekraakt. Voorbij deze deur ligt de AI-controlekamer, beveiligd met een symbolencode. Ontcijfer de vergrendelingsreeks uit het onderschepte protocol op het scherm. 🚨 Alarmfase actief." },
     5: { title: "Level 5 — Kernel Infiltratie",
          text: "Het alarm valt stil. Jullie staan in het hart van het systeem: de AI Kernel. Zij daagt jullie uit met een raadsel van getallen. Kies de juiste sleutels uit de matrix en infiltreer de kern." },
     6: { title: "Level 6 — De Finale",

@@ -11,6 +11,18 @@
     <h1>Level 4: Code van de Vier</h1>
     <p>🚨 Alarmfase actief. Selecteer de juiste 4 symbolen om de AI-controlekamer te ontgrendelen.</p>
 
+    <div class="er-panel">
+      <p class="er-prompt" style="color:var(--terminal);margin-top:0">onderschept protocol — vergrendelingsreeks</p>
+      <p style="margin-bottom:0.3rem">Vier symbolen, in de juiste volgorde. Leid ze af uit deze log:</p>
+      <ul style="line-height:1.9;margin:0.3rem 0">
+        <li><strong>◉</strong> opent de reeks.</li>
+        <li><strong>⚫</strong> sluit de reeks af.</li>
+        <li><strong>⚪</strong> komt meteen na <strong>◉</strong>.</li>
+        <li><strong>▲</strong> neemt de enige plek die overblijft.</li>
+      </ul>
+      <p style="color:var(--muted);margin-bottom:0">⚠️ Let op: <strong>◉</strong> (stip in cirkel) is niet hetzelfde als ◎.</p>
+    </div>
+
     <button class="er-btn er-btn-secondary" id="briefing-btn" type="button">🔊 Speel noodbriefing af</button>
 
     <div class="er-lock-panel" id="lock-panel">
@@ -65,7 +77,7 @@
         feedbackEl: "feedback",
         hintBtn: "hint-btn",
         hintEl: "hint-box",
-        hintText: "De volgorde van de symbolen staat op de fysieke aanwijzing die de spelleider in de ruimte heeft verstopt. Zoek naar vier gemarkeerde symbolen — de volgorde telt!",
+        hintText: "Werk de log af: ◉ eerst, ⚫ laatst, ⚪ meteen na ◉ — dan blijft ▲ over op plek 3. Volgorde: ◉ ⚪ ▲ ⚫.",
         getValue: () => Array.from(selects).map(s => s.value).join(""),
         onSuccess: () => {
           alarm.pause();
