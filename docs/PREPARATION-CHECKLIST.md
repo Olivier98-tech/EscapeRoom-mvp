@@ -7,7 +7,7 @@ Print deze pagina en vink af tijdens het klaarzetten.
 - [ ] Test de volledige escape room zelf van begin tot eind (ca. 30 min als je de antwoorden kent — zie FACILITATOR-GUIDE.md)
 - [ ] Kies: online spelen via GitHub Pages, of lokaal (map openen en `index.html` starten)
 - [ ] Regel per team één laptop of tablet **met werkende speakers**
-- [ ] Regel per team minimaal één telefoon met QR-scanner (voor level 1 en 6)
+- [ ] Regel per team minimaal één telefoon met QR-scanner (voor level 1)
 - [ ] Zet de **kluis** klaar voor level 4: briefje ◉ ⚪ ▲ ⚫ erin, slot op **435** (zie hieronder)
 
 ## 🔐 Kluis voor level 4 (nodig — geen printer)

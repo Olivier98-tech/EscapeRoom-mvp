@@ -21,7 +21,7 @@
 | 3 | Hexadecimaal | `SAVE_THE_WORLD` | Hex → ASCII, mét underscores. Hoofdletters maken niet uit. |
 | 4 | Symbolencode | `◉ ⚪ ▲ ⚫` (posities 3-2-5-1) | **Fysieke kluis:** reeks ◉ ⚪ ▲ ⚫ ligt erin; kluiscode **435** (letters van SAVE·THE·WORLD = 4·3·5) |
 | 5 | Kernel-matrix | `04, 09, 25, 49` | „Priemkracht in het kwadraat": kwadraten van de eerste vier priemgetallen (2²=4, 3²=9, 5²=25, 7²=49) |
-| 6a | QR-slot | `7381` | Scanbare QR: onthult „blok 7, ring 3, kern 8, poort 1" → 7381 |
+| 6a | Geheugen-doolhof | `7381` | Volg de sprongen vanaf adres B: B(7)→G(3)→D(8)→F(1=EINDE) → 7381 |
 | 6b | Zin-slot | `het signaal wordt gezien de wereld is vergrendeld de mensheid niet bewust van gevaar de tijd dringt` | 17 woorden, exacte volgorde |
 | 6c | ASCII-slot | `rescue` | Decimale ASCII: 114 101 115 99 117 101 |
 

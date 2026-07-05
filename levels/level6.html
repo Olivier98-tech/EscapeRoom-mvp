@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Level 6: De Finale</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .mem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(6rem,1fr));gap:0.6rem;max-width:32rem;margin:1rem auto;}
+    .mem{background:var(--panel-2);border:1px solid var(--terminal-dim);border-radius:8px;padding:0.5rem 0.3rem 0.4rem;text-align:center;position:relative;}
+    .mem .adr{position:absolute;top:0.25rem;left:0.45rem;font-size:0.7rem;color:var(--muted);}
+    .mem .val{display:block;font-size:1.9rem;color:var(--terminal);font-weight:700;line-height:1.5;}
+    .mem .jmp{display:block;font-size:0.72rem;color:var(--amber);}
+    .mem-start{border-color:var(--amber);box-shadow:0 0 14px rgba(255,170,0,0.25);}
+    .mem-start .adr{color:var(--amber);}
+    .mem-end{border-color:var(--terminal);}
+  </style>
 </head>
 <body>
   <main class="er-page">
@@ -13,10 +23,20 @@
 
     <!-- ── Puzzle 1: QR ─────────────────────────── -->
     <section class="er-panel">
-      <h2>🧩 Slot 1 — Visuele QR</h2>
-      <img class="er-img" src="../assets/images/qr-level6.png" alt="QR-raadsel" style="max-width:250px" />
+      <h2>🧩 Slot 1 — Geheugen-doolhof</h2>
+      <p style="color:var(--muted)">Start bij adres <strong style="color:var(--amber)">B</strong>. Volg telkens de sprong (→) naar het volgende adres en noteer bij elke stop de <strong style="color:var(--terminal)">waarde</strong>. Stop zodra je <strong style="color:var(--terminal)">EINDE</strong> bereikt — de vier waarden vormen de code.</p>
+      <div class="mem-grid">
+        <div class="mem"><span class="adr">A</span><span class="val">5</span><span class="jmp">→ C</span></div>
+        <div class="mem"><span class="adr">G</span><span class="val">3</span><span class="jmp">→ D</span></div>
+        <div class="mem"><span class="adr">C</span><span class="val">9</span><span class="jmp">→ A</span></div>
+        <div class="mem mem-end"><span class="adr">F</span><span class="val">1</span><span class="jmp">→ EINDE</span></div>
+        <div class="mem"><span class="adr">E</span><span class="val">2</span><span class="jmp">→ H</span></div>
+        <div class="mem mem-start"><span class="adr">B</span><span class="val">7</span><span class="jmp">→ G</span></div>
+        <div class="mem"><span class="adr">H</span><span class="val">4</span><span class="jmp">→ E</span></div>
+        <div class="mem"><span class="adr">D</span><span class="val">8</span><span class="jmp">→ F</span></div>
+      </div>
       <div style="text-align:center">
-        <input type="text" id="qr-input" inputmode="numeric" maxlength="4" placeholder="Code uit QR" autocomplete="off" />
+        <input type="text" id="qr-input" inputmode="numeric" maxlength="4" placeholder="4-cijferige code" autocomplete="off" />
         <button class="er-btn er-btn-primary" id="qr-submit" type="button">Controleer</button>
         <p class="er-feedback" id="qr-feedback"></p>
         <button class="er-btn er-btn-secondary" id="qr-hint-btn" type="button" disabled>💡 Hint</button>
@@ -87,7 +107,7 @@
         id: "l6a",
         inputEl: "qr-input", submitEl: "qr-submit", feedbackEl: "qr-feedback",
         hintBtn: "qr-hint-btn", hintEl: "qr-hint",
-        hintText: "Scan de QR-code met een telefoon. De code bestaat uit 4 cijfers.",
+        hintText: "Begin bij adres B en volg telkens de pijl (→) naar het volgende adres; noteer de waarde bij elke stop tot je EINDE bereikt. Let op: sommige adressen vormen een lus die nergens heen leidt.",
         onSuccess: () => { solved.qr = true; disableSlot("qr-input", "qr-submit"); refreshDestroy(); }
       });
 
