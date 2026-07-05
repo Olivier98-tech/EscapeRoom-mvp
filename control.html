@@ -71,7 +71,11 @@
       const db = getDatabase(fb);
       onValue(ref(db,"sessions"), snap => render(snap.val()||{}));
       window.mic = (id,type,value,level)=> update(ref(db,"sessions/"+id+"/command"),{type,value:value||0,level:level||0,id:Date.now()});
-      window.mrm = (id)=>{ if(confirm("Deze groep uit het overzicht verwijderen?")) remove(ref(db,"sessions/"+id)); };
+      window.mrm = (id, online)=>{
+        if(!confirm("Deze groep uit het overzicht verwijderen?")) return;
+        if(online){ update(ref(db,"sessions/"+id+"/command"),{type:"forget",value:0,level:0,id:Date.now()}); }
+        else { remove(ref(db,"sessions/"+id)); }
+      };
     }
 
     function render(sessions){
@@ -95,7 +99,7 @@
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'clearLocks\')">🔓 Unlock</button>'+
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',5)">−5</button>'+
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',10)">−10</button>'+
-            '<button class="ctl-btn danger" onclick="mrm(\''+s.id+'\')">✕</button>'+
+            '<button class="ctl-btn danger" onclick="mrm(\''+s.id+'\','+online+')">✕</button>'+
           '</td></tr>';
       }
       html += '</tbody></table>';

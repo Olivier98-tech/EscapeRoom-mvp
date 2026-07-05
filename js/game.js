@@ -100,6 +100,7 @@ const ER = (() => {
       store.del(K.lock + id);
     });
     for (let i = 1; i <= TOTAL_LEVELS; i++) { store.del(K.intro + i); store.del(K.lentry + i); store.del(K.ltime + i); }
+    store.del("er_syncoff");
     const cfg = getConfig();
     cfg.extraMs = 0;
     setConfig(cfg);
@@ -113,6 +114,7 @@ const ER = (() => {
       store.del(K.lock + id);
     });
     for (let i = 1; i <= TOTAL_LEVELS; i++) { store.del(K.intro + i); store.del(K.lentry + i); store.del(K.ltime + i); }
+    store.del("er_syncoff");
   }
 
   function isStarted() { return store.get(K.start, null) !== null; }
@@ -454,6 +456,7 @@ const ER = (() => {
     for (let i = 1; i <= TOTAL_LEVELS; i++) if (!isComplete(i)) return i;
     return TOTAL_LEVELS + 1;
   }
+  let _stopSync = null;
   function applySyncCommand(cmd) {
     if (!cmd || !cmd.type) return;
     if (cmd.type === "skip") {
@@ -463,11 +466,14 @@ const ER = (() => {
       clearLocks();
     } else if (cmd.type === "addTime") {
       addTime(Number(cmd.value) || 5);
+    } else if (cmd.type === "forget") {
+      if (_stopSync) _stopSync();
     }
   }
   async function initSync() {
     const cfg = (typeof window !== "undefined") ? window.ER_FIREBASE_CONFIG : null;
     if (!cfg || !cfg.databaseURL || String(cfg.databaseURL).indexOf("PLAK") !== -1) return;
+    if (store.get("er_syncoff", false)) return;
     try {
       const base = "https://www.gstatic.com/firebasejs/10.12.0/";
       const [appMod, dbMod] = await Promise.all([
@@ -490,7 +496,12 @@ const ER = (() => {
         });
       }
       report();
-      setInterval(report, 5000);
+      const _interval = setInterval(report, 5000);
+      _stopSync = function () {
+        clearInterval(_interval);
+        store.set("er_syncoff", true);
+        try { dbMod.remove(sref); } catch (e) {}
+      };
       dbMod.onValue(dbMod.ref(db, "sessions/" + id + "/command"), function (snap) {
         const cmd = snap.val();
         if (!cmd || !cmd.id) return;
