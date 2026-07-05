@@ -66,15 +66,22 @@
       document.getElementById("pin").addEventListener("keydown", e=>{ if(e.key==="Enter") tryLogin(); });
     }
 
+    let _sessions = {};
     function start(){
       const fb = initializeApp(cfg);
       const db = getDatabase(fb);
-      onValue(ref(db,"sessions"), snap => render(snap.val()||{}));
+      onValue(ref(db,"sessions"), snap => { _sessions = snap.val()||{}; render(_sessions); });
       window.mic = (id,type,value,level)=> update(ref(db,"sessions/"+id+"/command"),{type,value:value||0,level:level||0,id:Date.now()});
+      window.mreset = (id)=>{ if(confirm("Deze groep resetten en terug naar het startscherm sturen?")) window.mic(id,"reset"); };
       window.mrm = (id, online)=>{
         if(!confirm("Deze groep uit het overzicht verwijderen?")) return;
         if(online){ update(ref(db,"sessions/"+id+"/command"),{type:"forget",value:0,level:0,id:Date.now()}); }
         else { remove(ref(db,"sessions/"+id)); }
+      };
+      window.clearAll = ()=>{
+        if(!confirm("Alle groepen resetten en het overzicht leegmaken voor een nieuwe ronde?")) return;
+        Object.keys(_sessions).forEach(id => update(ref(db,"sessions/"+id+"/command"),{type:"reset",value:0,level:0,id:Date.now()}));
+        setTimeout(()=> remove(ref(db,"sessions")), 2500);
       };
     }
 
@@ -84,7 +91,7 @@
         .filter(s=>s.updatedAt)
         .sort((a,b)=>String(a.group||"").localeCompare(String(b.group||"")));
       if(!rows.length){ app.innerHTML = '<p class="empty">Nog geen groepen aangemeld. Zodra een groep de missie start, verschijnt die hier.</p>'; return; }
-      let html = '<p class="ctl-sub">'+rows.length+' groep(en) aangemeld · lijst ververst automatisch</p>';
+      let html = '<p class="ctl-sub">'+rows.length+' groep(en) aangemeld · lijst ververst automatisch &nbsp; <button class="ctl-btn danger" onclick="clearAll()">🧹 Nieuwe ronde — wis alle groepen</button></p>';
       html += '<table class="ctl"><thead><tr><th>Status</th><th>Groep</th><th>Level</th><th>Tijd</th><th>Acties</th></tr></thead><tbody>';
       for(const s of rows){
         const online = (now - s.updatedAt) < 15000;
@@ -97,6 +104,7 @@
           '<td>'+
             (s.done?"":'<button class="ctl-btn warn" onclick="mic(\''+s.id+'\',\'skip\',0,'+(s.level||1)+')">⏭ Skip level '+(s.level||1)+'</button>')+
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'clearLocks\')">🔓 Unlock</button>'+
+            '<button class="ctl-btn" onclick="mreset(\''+s.id+'\')">↺ Reset</button>'+
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',5)">−5</button>'+
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',10)">−10</button>'+
             '<button class="ctl-btn danger" onclick="mrm(\''+s.id+'\','+online+')">✕</button>'+

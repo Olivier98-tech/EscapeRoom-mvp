@@ -468,6 +468,10 @@ const ER = (() => {
       addTime(Number(cmd.value) || 5);
     } else if (cmd.type === "forget") {
       if (_stopSync) _stopSync();
+    } else if (cmd.type === "reset") {
+      resetGame();
+      if (_stopSync) _stopSync();
+      setTimeout(function () { location.reload(); }, 250);
     }
   }
   async function initSync() {
