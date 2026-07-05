@@ -1,13 +1,13 @@
 /* ============================================================
    Firebase-config voor het centrale spelleider-dashboard.
-   Vul dit in met je eigen (gratis) Firebase-project — zie
-   docs/FIREBASE-SETUP.md. Zolang de waarden op "PLAK-HIER"
-   staan, blijft het spel gewoon offline werken (per toestel).
+   Ingevuld voor project "escaperoom-7a0dc".
    ============================================================ */
 window.ER_FIREBASE_CONFIG = {
-  apiKey:      "PLAK-HIER",
-  authDomain:  "PLAK-HIER",
-  databaseURL: "PLAK-HIER",   // bv. https://jouwproject-default-rtdb.europe-west1.firebasedatabase.app
-  projectId:   "PLAK-HIER",
-  appId:       "PLAK-HIER"
+  apiKey:            "AIzaSyDK8ipHlG9N22oSgqiWfM7dBHtuvgPJxkg",
+  authDomain:        "escaperoom-7a0dc.firebaseapp.com",
+  databaseURL:       "https://escaperoom-7a0dc-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "escaperoom-7a0dc",
+  storageBucket:     "escaperoom-7a0dc.firebasestorage.app",
+  messagingSenderId: "803505725154",
+  appId:             "1:803505725154:web:157f69be1ae9592b6ec8bb"
 };
