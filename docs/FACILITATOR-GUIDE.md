@@ -16,7 +16,7 @@
 
 | Level | Puzzel | Antwoord | Toelichting |
 |---|---|---|---|
-| 1 | QR-cijfercode | `9284` | Scanbare QR met 4 rekensommen: 3²=9, √4=2, 2³=8, 2×2=4 → 9284 |
+| 1 | QR-cijfercode | `9284` | Scanbare QR, 4 binaire getallen: 1001=9, 0010=2, 1000=8, 0100=4 → 9284 |
 | 2 | Firewall-commando | `unlock_firewall --code=VENCODE` | Caesar-cijfer shift −1: „Uifsf jt b tfdsfu dpef: WFODPEF" → „There is a secret code: VENCODE". Hoofdletters maken niet uit. |
 | 3 | Hexadecimaal | `SAVE_THE_WORLD` | Hex → ASCII, mét underscores. Hoofdletters maken niet uit. |
 | 4 | Symbolencode | `◉ ⚪ ▲ ⚫` (posities 3-2-5-1) | Zelf op te lossen: logica-aanwijzingen staan op het scherm |

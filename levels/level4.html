@@ -77,7 +77,7 @@
         feedbackEl: "feedback",
         hintBtn: "hint-btn",
         hintEl: "hint-box",
-        hintText: "Werk de log af: ◉ eerst, ⚫ laatst, ⚪ meteen na ◉ — dan blijft ▲ over op plek 3. Volgorde: ◉ ⚪ ▲ ⚫.",
+        hintText: "Let op de valstrik: ◉ heeft een stip in het midden — kies niet ◎. Werk de log stap voor stap af: ◉ opent, ⚫ sluit, ⚪ komt meteen na ◉. Wat blijft er dan over voor plek 3?",
         getValue: () => Array.from(selects).map(s => s.value).join(""),
         onSuccess: () => {
           alarm.pause();
