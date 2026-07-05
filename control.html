@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spelleider — Centraal overzicht</title>
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .ctl-wrap{max-width:1000px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+  h1{color:var(--terminal);}
+  .ctl-sub{color:var(--muted);margin:0 0 1.4rem;}
+  table.ctl{width:100%;border-collapse:collapse;font-size:0.9rem;}
+  table.ctl th{text-align:left;color:var(--muted);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--terminal-dim);padding:0.5rem 0.6rem;}
+  table.ctl td{border-bottom:1px solid #16211d;padding:0.55rem 0.6rem;vertical-align:middle;}
+  .grp{color:var(--amber);font-weight:600;}
+  .lvl{color:var(--terminal);font-variant-numeric:tabular-nums;}
+  .tleft{font-variant-numeric:tabular-nums;}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:0.35rem;vertical-align:middle;}
+  .on{background:var(--terminal);} .off{background:#44514b;}
+  .ctl-btn{font-family:var(--font-mono);font-size:0.78rem;font-weight:600;padding:0.3rem 0.6rem;border-radius:5px;border:1px solid var(--terminal-dim);background:var(--panel-2);color:var(--terminal);cursor:pointer;margin:0.1rem;}
+  .ctl-btn:hover{border-color:var(--terminal);}
+  .ctl-btn.warn{color:var(--amber);}
+  .ctl-btn.danger{color:var(--alert);}
+  .notice{background:var(--panel);border:1px solid var(--terminal-dim);border-radius:10px;padding:2rem;text-align:center;margin-top:2rem;}
+  #pin-gate{max-width:340px;margin:2rem auto;text-align:center;}
+  .empty{color:var(--muted);text-align:center;padding:2rem;}
+</style>
+</head>
+<body>
+  <div class="ctl-wrap">
+    <h1>🎛 Centraal overzicht</h1>
+    <p class="ctl-sub">Alle actieve groepen live. Skip, unlock of geef tijd — per groep, van hieruit.</p>
+    <div id="pin-gate" class="er-panel" style="display:none">
+      <p>Voer de spelleider-PIN in.</p>
+      <input type="password" id="pin" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align:center" />
+      <div style="margin-top:0.8rem"><button class="er-btn er-btn-primary" id="pin-ok" type="button">Inloggen</button></div>
+      <p class="er-feedback" id="pin-fb"></p>
+    </div>
+    <div id="app"></div>
+    <p style="margin-top:2rem"><a href="admin.html" style="color:var(--muted)">← Spelleider portaal (dit toestel)</a></p>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const cfg = window.ER_FIREBASE_CONFIG;
+    const app = document.getElementById("app");
+    const gate = document.getElementById("pin-gate");
+
+    function hash(str){const s="EC2150:"+String(str);let x=5381;for(let i=0;i<s.length;i++)x=((x*33)^s.charCodeAt(i))>>>0;return x.toString(16);}
+    function fmt(ms){ms=Math.max(0,Math.floor(ms/1000));return Math.floor(ms/60)+":"+String(ms%60).padStart(2,"0");}
+    function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+    function notice(msg){return '<div class="notice">'+msg+'</div>';}
+
+    if(!cfg || String(cfg.databaseURL||"").indexOf("PLAK")!==-1){
+      app.innerHTML = notice("Firebase is nog niet ingesteld.<br>Vul <code>js/firebase-config.js</code> in — zie <code>docs/FIREBASE-SETUP.md</code>.");
+    } else {
+      gate.style.display = "block";
+      const tryLogin = () => {
+        if(hash(document.getElementById("pin").value.trim().toLowerCase())==="b83a4179"){ gate.style.display="none"; start(); }
+        else { const fb=document.getElementById("pin-fb"); fb.className="er-feedback er-locked"; fb.textContent="❌ Onjuiste PIN."; }
+      };
+      document.getElementById("pin-ok").addEventListener("click", tryLogin);
+      document.getElementById("pin").addEventListener("keydown", e=>{ if(e.key==="Enter") tryLogin(); });
+    }
+
+    function start(){
+      const fb = initializeApp(cfg);
+      const db = getDatabase(fb);
+      onValue(ref(db,"sessions"), snap => render(snap.val()||{}));
+      window.mic = (id,type,value,level)=> update(ref(db,"sessions/"+id+"/command"),{type,value:value||0,level:level||0,id:Date.now()});
+      window.mrm = (id)=>{ if(confirm("Deze groep uit het overzicht verwijderen?")) remove(ref(db,"sessions/"+id)); };
+    }
+
+    function render(sessions){
+      const now = Date.now();
+      const rows = Object.keys(sessions).map(id=>Object.assign({id},sessions[id]))
+        .filter(s=>s.updatedAt)
+        .sort((a,b)=>String(a.group||"").localeCompare(String(b.group||"")));
+      if(!rows.length){ app.innerHTML = '<p class="empty">Nog geen groepen aangemeld. Zodra een groep de missie start, verschijnt die hier.</p>'; return; }
+      let html = '<p class="ctl-sub">'+rows.length+' groep(en) aangemeld · lijst ververst automatisch</p>';
+      html += '<table class="ctl"><thead><tr><th>Status</th><th>Groep</th><th>Level</th><th>Tijd over</th><th>Acties</th></tr></thead><tbody>';
+      for(const s of rows){
+        const online = (now - s.updatedAt) < 15000;
+        const lvl = s.done ? "Klaar ✔" : ((s.level||1)+"/6");
+        html += '<tr>'+
+          '<td><span class="dot '+(online?"on":"off")+'"></span>'+(online?"online":"offline")+'</td>'+
+          '<td class="grp">'+esc(s.group||"(naamloos)")+'</td>'+
+          '<td class="lvl">'+lvl+'</td>'+
+          '<td class="tleft">'+fmt(s.remainingMs||0)+'</td>'+
+          '<td>'+
+            (s.done?"":'<button class="ctl-btn warn" onclick="mic(\''+s.id+'\',\'skip\',0,'+(s.level||1)+')">⏭ Skip level '+(s.level||1)+'</button>')+
+            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'clearLocks\')">🔓 Unlock</button>'+
+            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',5)">+5</button>'+
+            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',10)">+10</button>'+
+            '<button class="ctl-btn danger" onclick="mrm(\''+s.id+'\')">✕</button>'+
+          '</td></tr>';
+      }
+      html += '</tbody></table>';
+      app.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

@@ -22,7 +22,8 @@
 
     <!-- ── Dashboard ── -->
     <div id="dashboard" style="display:none">
-      <p id="admin-group" style="text-align:center;color:var(--amber);margin:0 0 1rem"></p>
+      <p id="admin-group" style="text-align:center;color:var(--amber);margin:0 0 0.4rem"></p>
+      <p style="text-align:center;margin:0 0 1.2rem"><a href="control.html" style="color:var(--terminal)">🌐 Centraal overzicht van alle groepen ▸</a> <span style="color:var(--muted);font-size:0.8rem">(vereist Firebase — zie docs/FIREBASE-SETUP.md)</span></p>
       <div class="er-admin-grid">
 
         <section class="er-panel">
@@ -67,6 +68,7 @@
     </div>
   </main>
 
+  <script src="js/firebase-config.js"></script>
   <script src="js/game.js"></script>
   <script>
     (function () {

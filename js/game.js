@@ -444,6 +444,65 @@ const ER = (() => {
     (hud || document.body).insertAdjacentElement(hud ? "afterend" : "afterbegin", bar);
   }
 
+  // ---------- Live sync naar centraal dashboard (optioneel, via Firebase) ----------
+  function deviceId() {
+    let id = store.get("er_device", null);
+    if (!id) { id = "d" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set("er_device", id); }
+    return id;
+  }
+  function syncActiveLevel() {
+    for (let i = 1; i <= TOTAL_LEVELS; i++) if (!isComplete(i)) return i;
+    return TOTAL_LEVELS + 1;
+  }
+  function applySyncCommand(cmd) {
+    if (!cmd || !cmd.type) return;
+    if (cmd.type === "skip") {
+      const lv = cmd.level || syncActiveLevel();
+      if (lv >= 1 && lv <= TOTAL_LEVELS) { completeLevel(lv); setTimeout(function () { location.reload(); }, 250); }
+    } else if (cmd.type === "clearLocks") {
+      clearLocks();
+    } else if (cmd.type === "addTime") {
+      addTime(Number(cmd.value) || 5);
+    }
+  }
+  async function initSync() {
+    const cfg = (typeof window !== "undefined") ? window.ER_FIREBASE_CONFIG : null;
+    if (!cfg || !cfg.databaseURL || String(cfg.databaseURL).indexOf("PLAK") !== -1) return;
+    try {
+      const base = "https://www.gstatic.com/firebasejs/10.12.0/";
+      const [appMod, dbMod] = await Promise.all([
+        import(base + "firebase-app.js"),
+        import(base + "firebase-database.js")
+      ]);
+      const app = appMod.initializeApp(cfg);
+      const db = dbMod.getDatabase(app);
+      const id = deviceId();
+      const sref = dbMod.ref(db, "sessions/" + id);
+      function report() {
+        if (!isStarted()) return;
+        const rem = remainingMs();
+        dbMod.update(sref, {
+          group: getGroupName() || "(naamloos)",
+          level: syncActiveLevel(),
+          solved: getProgress().length,
+          remainingMs: rem === null ? 0 : Math.max(0, rem),
+          done: syncActiveLevel() > TOTAL_LEVELS,
+          updatedAt: Date.now()
+        });
+      }
+      report();
+      setInterval(report, 5000);
+      dbMod.onValue(dbMod.ref(db, "sessions/" + id + "/command"), function (snap) {
+        const cmd = snap.val();
+        if (!cmd || !cmd.id) return;
+        if (cmd.id <= store.get("er_lastcmd", 0)) return;
+        store.set("er_lastcmd", cmd.id);
+        applySyncCommand(cmd);
+      });
+    } catch (e) { /* niet bereikbaar / niet geconfigureerd — spel werkt gewoon lokaal */ }
+  }
+  if (typeof window !== "undefined") { try { initSync(); } catch (e) {} }
+
   // ---------- Admin ----------
   function checkPin(pin) { return hash(normalize(pin)) === HASHES.pin; }
 

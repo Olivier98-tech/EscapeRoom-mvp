@@ -104,3 +104,10 @@ door spelleider" in plaats van een tijd.
 „Hervat"-strook als er al een missie loopt. „Speel" opent de **briefing**
 (`briefing.html`) met het verhaal, de groepsnaam en de startknop — pas dáár
 begint de klok. Zo staat op elk scherm maar één ding centraal.
+
+## 🌐 Centraal overzicht (optioneel)
+
+Wil je alle groepen op één scherm zien en van daaruit skippen/unlocken/tijd
+geven? Zet het gratis Firebase-dashboard op (zie `docs/FIREBASE-SETUP.md`) en
+open `control.html` (PIN 2150). Zonder Firebase gebruik je `admin.html` per
+toestel — dat kan hetzelfde, maar per laptop.
