@@ -8,17 +8,19 @@ Print deze pagina en vink af tijdens het klaarzetten.
 - [ ] Kies: online spelen via GitHub Pages, of lokaal (map openen en `index.html` starten)
 - [ ] Regel per team één laptop of tablet **met werkende speakers**
 - [ ] Regel per team minimaal één telefoon met QR-scanner (voor level 1 en 6)
-- [ ] (Optioneel) Fysieke aanwijzing voor **level 4** — niet meer nodig, de puzzel is op het scherm oplosbaar (zie hieronder)
+- [ ] Zet de **kluis** klaar voor level 4: briefje ◉ ⚪ ▲ ⚫ erin, slot op **435** (zie hieronder)
 
-## 🖨 Fysieke aanwijzing level 4 (optioneel)
+## 🔐 Kluis voor level 4 (nodig — geen printer)
 
-Level 4 is nu **volledig op het scherm** oplosbaar: de log geeft vier logica-
-aanwijzingen waaruit spelers de volgorde **◉ ⚪ ▲ ⚫** afleiden. Printen hoeft dus
-niet meer.
+Level 4 haalt de juiste symbolenreeks uit een **fysieke kluis**. Met de hand te maken:
 
-Wil je er tóch een fysieke zoektocht van maken? Verstop dan een briefje met
-**◉ ⚪ ▲ ⚫** in de ruimte en laat de on-screen log weg (of gebruik hem als
-extra hint).
+1. Leg in de kluis een briefje met de vier symbolen in volgorde: **◉ ⚪ ▲ ⚫**
+   (◉ = cirkel met stip, ⚪ = witte cirkel, ▲ = driehoek, ⚫ = zwarte cirkel).
+2. Zet het 3-cijferslot op **435**. Spelers kraken die code zelf: het is de
+   lettertelling van het commando uit level 3 — **SAVE**(4) **THE**(3) **WORLD**(5).
+3. Het scherm geeft de hint naar de kluiscode; de kluis geeft de symbolen.
+
+Geen kluis? Zet dan in `admin.html` level 4 op „overslaan" voor die groep.
 
 ## 🗓 Op de dag zelf — per apparaat
 
@@ -27,7 +29,7 @@ extra hint).
 - [ ] Open `admin.html` → log in (PIN staat in de spelleider-gids) → **Reset alles**
 - [ ] Stel de gewenste speelduur in (standaard 60 min)
 - [ ] Sluit het admin-tabblad — laat alleen de intropagina open staan
-- [ ] (Alleen als je de fysieke variant gebruikt) Controleer dat het level 4-briefje verstopt ligt
+- [ ] Controleer dat de kluis dicht is (code 435) met het symbolenbriefje erin
 
 ## 🎬 Briefing voor de spelers (voorlezen)
 
@@ -50,4 +52,4 @@ extra hint).
 
 - [ ] Noteer de eindtijd (staat op de finale-pagina) voor een eventueel klassement
 - [ ] Admin portaal → **Reset alles** voor de volgende groep
-- [ ] (Alleen fysieke variant) Verstop het level 4-briefje opnieuw
+- [ ] Sluit de kluis weer (code 435, symbolenbriefje erin)

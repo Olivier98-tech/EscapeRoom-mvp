@@ -19,7 +19,7 @@
 | 1 | QR-cijfercode | `9284` | Scanbare QR, 4 binaire getallen: 1001=9, 0010=2, 1000=8, 0100=4 → 9284 |
 | 2 | Firewall-commando | `unlock_firewall --code=VENCODE` | Caesar-cijfer shift −1: „Uifsf jt b tfdsfu dpef: WFODPEF" → „There is a secret code: VENCODE". Hoofdletters maken niet uit. |
 | 3 | Hexadecimaal | `SAVE_THE_WORLD` | Hex → ASCII, mét underscores. Hoofdletters maken niet uit. |
-| 4 | Symbolencode | `◉ ⚪ ▲ ⚫` (posities 3-2-5-1) | Zelf op te lossen: logica-aanwijzingen staan op het scherm |
+| 4 | Symbolencode | `◉ ⚪ ▲ ⚫` (posities 3-2-5-1) | **Fysieke kluis:** reeks ◉ ⚪ ▲ ⚫ ligt erin; kluiscode **435** (letters van SAVE·THE·WORLD = 4·3·5) |
 | 5 | Kernel-matrix | `04, 09, 25, 49` | „Priemkracht in het kwadraat": kwadraten van de eerste vier priemgetallen (2²=4, 3²=9, 5²=25, 7²=49) |
 | 6a | QR-slot | `7381` | Scanbare QR: onthult „blok 7, ring 3, kern 8, poort 1" → 7381 |
 | 6b | Zin-slot | `het signaal wordt gezien de wereld is vergrendeld de mensheid niet bewust van gevaar de tijd dringt` | 17 woorden, exacte volgorde |
@@ -49,7 +49,7 @@
 | Level 1 — Cijfercode | 6 min |
 | Level 2 — Firewall | 8 min |
 | Level 3 — Hexa | 8 min |
-| Level 4 — Symbolen (logicapuzzel op scherm) | 8 min |
+| Level 4 — Symbolen (kluis + code kraken) | 10 min |
 | Level 5 — Kernel-matrix | 10 min |
 | Level 6 — Drie finale sloten | 12 min |
 | Finale + uitloop | 3 min |

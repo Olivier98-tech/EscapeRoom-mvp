@@ -12,15 +12,10 @@
     <p>🚨 Alarmfase actief. Selecteer de juiste 4 symbolen om de AI-controlekamer te ontgrendelen.</p>
 
     <div class="er-panel">
-      <p class="er-prompt" style="color:var(--terminal);margin-top:0">onderschept protocol — vergrendelingsreeks</p>
-      <p style="margin-bottom:0.3rem">Vier symbolen, in de juiste volgorde. Leid ze af uit deze log:</p>
-      <ul style="line-height:1.9;margin:0.3rem 0">
-        <li><strong>◉</strong> opent de reeks.</li>
-        <li><strong>⚫</strong> sluit de reeks af.</li>
-        <li><strong>⚪</strong> komt meteen na <strong>◉</strong>.</li>
-        <li><strong>▲</strong> neemt de enige plek die overblijft.</li>
-      </ul>
-      <p style="color:var(--muted);margin-bottom:0">⚠️ Let op: <strong>◉</strong> (stip in cirkel) is niet hetzelfde als ◎.</p>
+      <p class="er-prompt" style="color:var(--terminal);margin-top:0">vergrendelingsreeks — beveiligd in de kluis</p>
+      <p>De juiste volgorde van de vier symbolen ligt in de <strong>fysieke kluis</strong>. Kraak eerst de 3-cijferige kluiscode:</p>
+      <p style="color:var(--amber);margin:0.5rem 0">🔐 „De code zit in het commando dat je zojuist ontcijferde. Tel de letters van elk woord."</p>
+      <p style="color:var(--muted);margin-bottom:0">Open de kluis, lees de symbolenreeks en voer die hieronder in. ⚠️ Let op: ◉ (stip in cirkel) is niet ◎.</p>
     </div>
 
     <button class="er-btn er-btn-secondary" id="briefing-btn" type="button">🔊 Speel noodbriefing af</button>
@@ -77,7 +72,7 @@
         feedbackEl: "feedback",
         hintBtn: "hint-btn",
         hintEl: "hint-box",
-        hintText: "Let op de valstrik: ◉ heeft een stip in het midden — kies niet ◎. Werk de log stap voor stap af: ◉ opent, ⚫ sluit, ⚪ komt meteen na ◉. Wat blijft er dan over voor plek 3?",
+        hintText: "De juiste symbolenreeks zit in de fysieke kluis — open die eerst. Kopieer daarna de vier symbolen precies over: ◉ (stip in cirkel) is niet hetzelfde als ◎.",
         getValue: () => Array.from(selects).map(s => s.value).join(""),
         onSuccess: () => {
           alarm.pause();
