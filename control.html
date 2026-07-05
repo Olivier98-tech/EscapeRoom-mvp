@@ -81,7 +81,7 @@
         .sort((a,b)=>String(a.group||"").localeCompare(String(b.group||"")));
       if(!rows.length){ app.innerHTML = '<p class="empty">Nog geen groepen aangemeld. Zodra een groep de missie start, verschijnt die hier.</p>'; return; }
       let html = '<p class="ctl-sub">'+rows.length+' groep(en) aangemeld · lijst ververst automatisch</p>';
-      html += '<table class="ctl"><thead><tr><th>Status</th><th>Groep</th><th>Level</th><th>Tijd over</th><th>Acties</th></tr></thead><tbody>';
+      html += '<table class="ctl"><thead><tr><th>Status</th><th>Groep</th><th>Level</th><th>Tijd</th><th>Acties</th></tr></thead><tbody>';
       for(const s of rows){
         const online = (now - s.updatedAt) < 15000;
         const lvl = s.done ? "Klaar ✔" : ((s.level||1)+"/6");
@@ -89,12 +89,12 @@
           '<td><span class="dot '+(online?"on":"off")+'"></span>'+(online?"online":"offline")+'</td>'+
           '<td class="grp">'+esc(s.group||"(naamloos)")+'</td>'+
           '<td class="lvl">'+lvl+'</td>'+
-          '<td class="tleft">'+fmt(s.remainingMs||0)+'</td>'+
+          '<td class="tleft">'+fmt(s.timeMs||0)+'</td>'+
           '<td>'+
             (s.done?"":'<button class="ctl-btn warn" onclick="mic(\''+s.id+'\',\'skip\',0,'+(s.level||1)+')">⏭ Skip level '+(s.level||1)+'</button>')+
             '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'clearLocks\')">🔓 Unlock</button>'+
-            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',5)">+5</button>'+
-            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',10)">+10</button>'+
+            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',5)">−5</button>'+
+            '<button class="ctl-btn" onclick="mic(\''+s.id+'\',\'addTime\',10)">−10</button>'+
             '<button class="ctl-btn danger" onclick="mrm(\''+s.id+'\')">✕</button>'+
           '</td></tr>';
       }

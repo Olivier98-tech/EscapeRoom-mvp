@@ -29,13 +29,8 @@
     if (!ER.isComplete(6)) {
       window.location.href = ER.isStarted() ? "levels/level1.html" : "index.html";
     } else {
-      const rem = ER.remainingMs();
       const el = document.getElementById("final-time");
-      if (rem !== null && rem > 0) {
-        el.textContent = "⏱ Ontsnapt met nog " + ER.fmt(rem) + " op de klok!";
-      } else if (rem !== null) {
-        el.textContent = "⏱ Ontsnapt — al kostte het iets meer tijd dan gepland...";
-      }
+      el.textContent = "⏱ Jullie totale tijd: " + ER.fmt(ER.elapsedShownMs());
 
       const fw = document.getElementById("fireworks");
       document.getElementById("cheer-btn").addEventListener("click", () => {

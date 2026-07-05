@@ -181,6 +181,13 @@ const ER = (() => {
     const start = store.get(K.start, null);
     return start === null ? 0 : Date.now() - start;
   }
+  // Count-up display time: elapsed minus any admin "voordeel" (extraMs credit).
+  function elapsedShownMs() {
+    const start = store.get(K.start, null);
+    if (start === null) return 0;
+    const cfg = getConfig();
+    return Math.max(0, (Date.now() - start) - (cfg.extraMs || 0));
+  }
 
   // ---------- Answers ----------
   function check(id, input) {
@@ -247,6 +254,7 @@ const ER = (() => {
       '<span class="er-hud-item er-hud-mission">MISSIE 2150</span>' +
       (grp ? '<span class="er-hud-item er-hud-group">👥 ' + escapeHtml(grp) + "</span>" : "") +
       '<span class="er-hud-item">LEVEL <strong>' + level + "</strong>/" + TOTAL_LEVELS + "</span>" +
+      '<a class="er-hud-item er-hud-link" href="' + basePath + 'index.html">⌂ home</a>' +
       '<a class="er-hud-item er-hud-link" href="' + basePath + 'dashboard.html">◈ missiecontrole</a>' +
       '<span class="er-hud-item er-hud-timer" id="er-timer">--:--</span>' +
       '<button class="er-hud-btn" id="er-sound-btn" type="button">🔊</button>';
@@ -267,16 +275,8 @@ const ER = (() => {
   function tickTimer() {
     const el = document.getElementById("er-timer");
     if (!el) return;
-    const rem = remainingMs();
-    if (rem === null) { el.textContent = "--:--"; return; }
-    if (rem <= 0) {
-      el.textContent = "TIJD OM";
-      el.classList.add("er-timer-expired");
-      document.body.classList.add("er-time-up");
-    } else {
-      el.textContent = fmt(rem);
-      el.classList.toggle("er-timer-warning", rem < 5 * 60000);
-    }
+    if (!isStarted()) { el.textContent = "--:--"; return; }
+    el.textContent = fmt(elapsedShownMs());
   }
 
   // ---------- Standard puzzle wiring ----------
@@ -480,12 +480,11 @@ const ER = (() => {
       const sref = dbMod.ref(db, "sessions/" + id);
       function report() {
         if (!isStarted()) return;
-        const rem = remainingMs();
         dbMod.update(sref, {
           group: getGroupName() || "(naamloos)",
           level: syncActiveLevel(),
           solved: getProgress().length,
-          remainingMs: rem === null ? 0 : Math.max(0, rem),
+          timeMs: elapsedShownMs(),
           done: syncActiveLevel() > TOTAL_LEVELS,
           updatedAt: Date.now()
         });
@@ -511,7 +510,7 @@ const ER = (() => {
     FREE_ATTEMPTS, LOCKOUT_STEP_SECONDS, LOCKOUT_MAX_SECONDS, lockoutSecondsFor,
     hash, normalize,
     getConfig, setConfig, startGame, resetGame, isStarted,
-    remainingMs, elapsedMs, addTime, fmt,
+    remainingMs, elapsedMs, elapsedShownMs, addTime, fmt,
     getProgress, completeLevel, isComplete, guard,
     getGroupName, setGroupName,
     startLevelTimer, recordLevelSolved, getLevelTime,

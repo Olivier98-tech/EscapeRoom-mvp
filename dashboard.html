@@ -117,7 +117,7 @@
       app.innerHTML =
         '<div class="mc-top"><span class="brand">◈ MISSIE 2150</span>' +
         (grp ? '<span class="group">👥 ' + grp.replace(/[<>&]/g, "") + "</span>" : "") +
-        '<span class="timer" id="mc-timer">--:--<small>RESTEREND</small></span></div>' +
+        '<span class="timer" id="mc-timer">--:--<small>GESPEELD</small></span></div>' +
         '<div class="mc-head"><h1>▸ Missiecontrole</h1>' +
         "<p>" + (allDone
           ? "Alle sloten zijn gekraakt. Activeer de zelfvernietiging en red de mensheid."
@@ -133,11 +133,10 @@
         '<div class="mc-back">' + backLine + "</div>";
 
       function tick() {
-        const rem = ER.remainingMs();
         const tEl = document.getElementById("mc-timer");
-        if (tEl) tEl.innerHTML = (rem === null ? "--:--" : (rem <= 0 ? "TIJD OM" : ER.fmt(rem))) + "<small>RESTEREND</small>";
+        if (tEl) tEl.innerHTML = ER.fmt(ER.elapsedShownMs()) + "<small>GESPEELD</small>";
         const pEl = document.getElementById("mc-played");
-        if (pEl) pEl.textContent = ER.fmt(ER.elapsedMs());
+        if (pEl) pEl.textContent = ER.fmt(ER.elapsedShownMs());
         const rEl = document.getElementById("mc-run");
         if (rEl && active !== null) {
           const entry = levelEntry(active);
